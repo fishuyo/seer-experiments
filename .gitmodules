@@ -1,0 +1,4 @@
+[submodule "seer"]
+	path = seer
+	url = https://github.com/fishuyo/seer.git
+	branch = devel
