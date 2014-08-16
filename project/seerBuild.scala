@@ -83,7 +83,7 @@ object SeerBuild extends Build {
   lazy val seer_multitouch = SeerProject (
     "seer-multitouch",
     file("seer/seer-modules/seer-multitouch")
-  ) dependsOn seer_core
+  ) dependsOn( seer_gdx )
 
   lazy val seer_vrpn = SeerProject ( // TODO get vrpn dependency..
     "seer-vrpn",
