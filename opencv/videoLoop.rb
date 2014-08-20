@@ -2,7 +2,7 @@ require 'java'
 
 module M
   include_package "com.fishuyo.seer.io"
-  include_package "com.fishuyo.seer.maths"
+  include_package "com.fishuyo.seer.spatial"
   include_package "com.fishuyo.seer.graphics"
   include_package "com.fishuyo.seer.examples.opencv.loop"
   include_package "com.fishuyo.seer.video"

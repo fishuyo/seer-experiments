@@ -3,7 +3,7 @@ package examples.opencv.faceDetect
 
 import graphics._
 import io._
-import maths._
+import spatial._
 import dynamic._
 import cv._
 
@@ -17,12 +17,10 @@ import org.opencv.core._
 import org.opencv.highgui._
 import org.opencv.imgproc._
 
-object Main extends App with Animatable{
+object Main extends SeerApp {
 
-  DesktopApp.loadLibs()
   System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME)
 
-  Scene.push(this)
 
 	var capture: VideoCapture = _
 	implicit var camera = new CalibratedCamera()
@@ -52,8 +50,6 @@ object Main extends App with Animatable{
   var pix:Pixmap = null
   
   val live = new Ruby("faceDetect.rb")
-
-  DesktopApp()  
 
   override def init(){
     capture = new VideoCapture(0)

@@ -4,13 +4,14 @@ package examples.opencv.lemonsynth
 
 import graphics._
 import io._
-import maths._
+import spatial._
 import dynamic._
 import cv._
 import video._
 import audio._
 import gen.Sine
 import util._
+import types._
 
 import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConversions._
@@ -22,9 +23,7 @@ import org.opencv.core._
 import org.opencv.highgui._
 import org.opencv.imgproc._
 
-object Main extends App with Animatable{
-
-  DesktopApp.loadLibs()
+object Main extends SeerApp{
 
 	var capture: VideoCapture = _
   var bgsub:BackgroundSubtract = _
@@ -41,10 +40,8 @@ object Main extends App with Animatable{
   cube.material.textureMix = 1.f
 
   val synth = new Sine(new Single(400.f), new Single(0.f))
-  Audio.push(synth)
-
-  Scene.push(this)
-  DesktopApp()  
+  GdxAudio.init
+  Audio().push(synth)
 
   override def init(){
     System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME)

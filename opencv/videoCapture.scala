@@ -3,7 +3,7 @@ package examples.opencv.cap
 
 import graphics._
 import io._
-import maths._
+import spatial._
 import dynamic._
 import cv._
 import video._
@@ -18,7 +18,7 @@ import org.opencv.core._
 import org.opencv.highgui._
 import org.opencv.imgproc._
 
-object Main extends App with Animatable{
+object Main extends SeerApp {
 
 	var capture: VideoCapture = _
   var bgsub:BackgroundSubtract = _
@@ -29,10 +29,6 @@ object Main extends App with Animatable{
 
   var bytes:Array[Byte] = null
 
-  DesktopApp.loadLibs()
-
-  Scene.push(this)
-
   val live = new Ruby("videoCapture.rb")
 
   val cube = Model(Cube())
@@ -42,7 +38,6 @@ object Main extends App with Animatable{
 
   var player:VideoPlayer = null
 
-  DesktopApp()  
 
   override def init(){
     System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME)

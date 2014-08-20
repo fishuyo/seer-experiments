@@ -3,7 +3,7 @@ package examples.opencv.slitscan
 
 import graphics._
 import io._
-import maths._
+import spatial._
 import dynamic._
 import cv._
 
@@ -17,10 +17,7 @@ import org.opencv.core._
 import org.opencv.highgui._
 import org.opencv.imgproc._
 
-object Main extends App with Animatable{
-
-  DesktopApp.loadLibs()
-  Scene.push(this)
+object Main extends SeerApp {
 
 	var capture: VideoCapture = _
 
@@ -35,7 +32,6 @@ object Main extends App with Animatable{
 
   var pix:Pixmap = null
 
-  DesktopApp()  
 
   override def init(){
     System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME)

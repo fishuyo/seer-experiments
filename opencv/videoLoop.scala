@@ -3,7 +3,7 @@ package examples.opencv.loop
 
 import graphics._
 import io._
-import maths._
+import spatial._
 import particle._
 import dynamic._
 import cv._
@@ -21,11 +21,9 @@ import org.opencv.core._
 import org.opencv.highgui._
 import org.opencv.imgproc._
 
-object Main extends App with Animatable{
+object Main extends SeerApp {
 
-  DesktopApp.loadLibs()
   System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME)
-  Scene.push(this)
 
 	var capture: VideoCapture = _
   var bgsub = new BackgroundSubtract
@@ -60,9 +58,8 @@ object Main extends App with Animatable{
 
   val audioLoop = new Loop(10.f)
 
-  Audio.push(audioLoop)
+  Audio().push(audioLoop)
 
-  DesktopApp()  
 
   override def init(){
     capture = new VideoCapture(0)
@@ -110,10 +107,11 @@ object Main extends App with Animatable{
   }
 
   override def draw(){
-    Shader.lightingMix = 0.f
+    Shader.lightingMix = 1.f
   	Shader.textureMix = 1.f
   	Texture.bind(0)
   	cube.draw()
+    Sphere().draw
   }
 
   override def animate(dt:Float){
