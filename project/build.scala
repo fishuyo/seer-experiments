@@ -36,7 +36,7 @@ object ExperimentsBuild extends Build {
     "experiments-opencv",
     file("opencv"),
     settings = BuildSettings.app
-  ) dependsOn( seer_gdx_desktop_app, seer_opencv )
+  ) dependsOn( seer_gdx_desktop_app, seer_opencv, seer_jruby, seer_multitouch )
 
   lazy val experiments_video = SeerProject (
     "experiments-video",
