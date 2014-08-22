@@ -11,7 +11,7 @@ object ExperimentsBuild extends Build {
   	id = "experiments",
   	base = file("."),
   	settings = BuildSettings.app
-  ) dependsOn( seer_gdx_desktop_app, seer_multitouch )
+  ) dependsOn( seer_gdx_desktop_app, seer_multitouch, seer_openni, seer_opencv )
   
 
   lazy val experiments_fieldViewer = SeerProject (
@@ -43,5 +43,11 @@ object ExperimentsBuild extends Build {
     file("video"),
     settings = BuildSettings.app
   ) dependsOn( seer_gdx_desktop_app, seer_video )
+
+  lazy val experiments_openni = SeerProject (
+    "experiments-openni",
+    file("openni"),
+    settings = BuildSettings.app
+  ) dependsOn( seer_gdx_desktop_app, seer_multitouch, seer_video )
 
 }

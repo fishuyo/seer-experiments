@@ -17,7 +17,9 @@ object Loader extends SeerScript {
 	// val loader = new SeerScriptLoader("scripts/openni.scala")
 	// val loader = new SeerScriptLoader("scripts/cloth.scala")
 	// val loader = new SeerScriptLoader("scripts/wall.scala")
-	val loader = new SeerScriptLoader("scripts/eisenscript.scala")
+	// val loader = new SeerScriptLoader("scripts/eisenscript.scala")
+	// val loader = new SeerScriptLoader("scripts/openni.scala")
+	val loader = new SeerScriptLoader("scripts/openni_loop.scala")
 
 // 
 	override def onUnload(){
