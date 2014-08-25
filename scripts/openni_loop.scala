@@ -42,6 +42,8 @@ object Script extends SeerScript {
 
   val bytes = new Array[Byte](640*480*4)
 
+  var bg = false
+  var subtract = false
 
   override def init(){
   	// loadShaders()
@@ -78,8 +80,9 @@ object Script extends SeerScript {
 		videoMat.put(0,0,OpenNI.rgbbytes)
 		maskMat.put(0,0,OpenNI.maskbytes)
 
-		val img = new Mat()
-		videoMat.copyTo(img, maskMat)
+		var img = new Mat()
+    if(subtract) videoMat.copyTo(img, maskMat)
+    else videoMat.copyTo(img)
 
   //   val rsmall = new Mat()
   // 	val small = new Mat()
@@ -92,11 +95,12 @@ object Script extends SeerScript {
 
     if( out.empty()) return
 
-    // if( subtract ){
+    if( bg ){
       val bgmask = new Mat()
       Core.compare(out, new Scalar(0), bgmask, Core.CMP_EQ)
       videoMat.copyTo(out,bgmask)
-    // }
+      bgmask.release
+    }
 
  		// copy MAT to pixmap
     out.get(0,0,bytes)  
@@ -112,7 +116,6 @@ object Script extends SeerScript {
 
 		img.release
 		out.release
-		bgmask.release
 	}
 
 	def loadShaders(){
@@ -132,20 +135,24 @@ object Script extends SeerScript {
   Keyboard.bind("c", () => loop.clear() )
   Keyboard.bind("	", () => loop.reverse() )
   Keyboard.bind("j", () => loop.setAlphaBeta(1.f,.99f) )
+  Keyboard.bind("b", () => bg = !bg )
+  Keyboard.bind("v", () => subtract = !subtract )
 
   Keyboard.bind("p", () => video.ScreenCapture.toggleRecord )
-  Keyboard.bind("o", () => loop.writeToFile() )
+  Keyboard.bind("o", () => loop.writeToFile("",1.0,"mpeg4") )
 
 
   Mouse.clear()
 	Mouse.use()
 	Mouse.bind("drag", (i) => {
-		val speed = (400 - i(1)) / 100.f
-	  val decay = (i(0) - 400) / 100.f
+		val y = (Window.height - i(1)*1.f) / Window.height
+	  val x = (i(0)*1.f) / Window.width
 	  // # decay = (decay + 4)/8
 	  // # Loop.loop.setSpeed(speed)
 		// loop.setAlphaBeta(decay, speed)
-	  loop.setAlpha(decay)
+    println(s"$x $y")
+    // loop.setAlpha(x)
+	  loop.setAlphaBeta(x,y)
 	})
 
 }
