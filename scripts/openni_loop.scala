@@ -44,6 +44,7 @@ object Script extends SeerScript {
 
   var bg = false
   var subtract = false
+  var depth = false
 
   override def init(){
   	// loadShaders()
@@ -77,7 +78,8 @@ object Script extends SeerScript {
 		bb0.rewind
 		tex2.draw(vpix,0,0)
 
-		videoMat.put(0,0,OpenNI.rgbbytes)
+    if(depth) videoMat.put(0,0,OpenNI.imgbytes)
+    else videoMat.put(0,0,OpenNI.rgbbytes)
 		maskMat.put(0,0,OpenNI.maskbytes)
 
 		var img = new Mat()
@@ -137,6 +139,7 @@ object Script extends SeerScript {
   Keyboard.bind("j", () => loop.setAlphaBeta(1.f,.99f) )
   Keyboard.bind("b", () => bg = !bg )
   Keyboard.bind("v", () => subtract = !subtract )
+  Keyboard.bind("z", () => depth = !depth )
 
   Keyboard.bind("p", () => video.ScreenCapture.toggleRecord )
   Keyboard.bind("o", () => loop.writeToFile("",1.0,"mpeg4") )

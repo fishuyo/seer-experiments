@@ -50,4 +50,10 @@ object ExperimentsBuild extends Build {
     settings = BuildSettings.app
   ) dependsOn( seer_gdx_desktop_app, seer_multitouch, seer_video )
 
+  lazy val experiments_morea = SeerProject (
+    "morea",
+    file("morea"),
+    settings = BuildSettings.app
+  ) dependsOn( seer_gdx_desktop_app, seer_multitouch )
+
 }
