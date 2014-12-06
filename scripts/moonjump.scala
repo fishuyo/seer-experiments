@@ -3,7 +3,7 @@ import com.fishuyo.seer._
 
 import graphics._
 import spatial._
-import particle._
+import com.fishuyo.seer.particle._
 import io._
 import util._
 import dynamic._
@@ -15,7 +15,7 @@ import collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 
 class SParticle extends KinematicState with RotationalState {
-	var r = 1.f
+	var r = 1f
 	def step(){
 		Integrators.verlet(this)
 		Integrators.rotationalVerlet(this)
@@ -48,9 +48,9 @@ class Entity extends SParticle with Animatable {
 	override def animate(dt:Float) = {
 		step()
 		// model.pose.pos.set(position)
-		// position = orientation.toZ() * 3.f
+		// position = orientation.toZ() * 3f
 		// lPosition = position
-		position.set( position.normalized * 5.f)
+		position.set( position.normalized * 5f)
 		// position.z = 0
 		// position.wrap(Vec3(-30,-30,0), Vec3(30,30,0))
 
@@ -64,16 +64,16 @@ class Player(var id:Int, var color:Vec3) extends Entity {
 	var jumping = false
 	var attachedTo = None:Option[Moon]
 	var offset = Vec3()
-	var angle = 0.f
-	var groundVelocity = 0.f
-	var groundAccel = 0.f
+	var angle = 0f
+	var groundVelocity = 0f
+	var groundAccel = 0f
 
 	model = Sphere();
 	r = 0.1
 	mass = 0.001
 	model.scale(r) //.3*r,r,.3*r)
 	model.material = Material.specular
-	model.material.color = RGBA(color,1.f)
+	model.material.color = RGBA(color,1f)
 	position.set(Random.vec3())
 	lPosition.set(position)
 
@@ -96,7 +96,7 @@ class Player(var id:Int, var color:Vec3) extends Entity {
 			// if(math.abs(n.x) > 0.000001) x *= -n.x/math.abs(n.x)
 			// if(math.abs(n.z) > 0.000001) x *= -n.z/math.abs(n.z)
 			angle = math.atan2(n.y,x)
-			groundVelocity = 0.f //velocity.dot(-n.cross(velocity.cross(-n)))
+			groundVelocity = 0f //velocity.dot(-n.cross(velocity.cross(-n)))
 			attachedTo = Some(m)
 			m.capturedBy = id
 			m.model.material.color = model.material.color
@@ -118,7 +118,7 @@ class Player(var id:Int, var color:Vec3) extends Entity {
 		if( attachedTo.isDefined ){
 			val m = attachedTo.get
 			groundVelocity += groundAccel
-			groundAccel = 0.f
+			groundAccel = 0f
 			groundVelocity *= 0.93f
 			angle += groundVelocity * dt / m.r
 			val p = (tx*math.cos(angle) + Vec3(0,1,0)*math.sin(angle)) * (r+m.r)
@@ -185,10 +185,10 @@ object Script extends SeerScript {
 	Camera.nav.pos.set(0,0,0)
 	Camera.nav.quat = Quat()
 
-	Shader.lightPosition.set(0,0,-1)
+	Renderer().environment.lightPosition.set(0,0,-1)
 
-	var t = 0.f
-	var zoom = 0.f
+	var t = 0f
+	var zoom = 0f
 
 	var players = List[Player]()
 	var moons = List[Moon]()
@@ -223,8 +223,8 @@ object Script extends SeerScript {
 		moons.foreach( _.animate(dt) )
 		players.foreach( _.animate(dt) )
 
-		sun.pose.pos.set(Vec3(math.cos(t*0.01),0.f,math.sin(t*0.01)) * 10.f)
-		Shader.lightPosition.set(sun.pose.pos)
+		sun.pose.pos.set(Vec3(math.cos(t*0.01),0f,math.sin(t*0.01)) * 10f)
+		Renderer().environment.lightPosition.set(sun.pose.pos)
 
 		// check win condition
 		if(playing){
@@ -237,11 +237,11 @@ object Script extends SeerScript {
 				Schedule.every(0.1 seconds){
 					val s = Random.float()*.3f + .1f
 					val m = new Moon(s)
-					m.position.set(Random.vec3().normalized * 3.f)
+					m.position.set(Random.vec3().normalized * 3f)
 					m.lPosition.set( m.position - Random.vec3()*0.05f )		
 					m.orientation.set(Random.quat())
 					m.lOrientation.set(m.orientation.slerp(Random.quat(),0.01))
-					m.model.material.color = RGBA(p.color,1.f)
+					m.model.material.color = RGBA(p.color,1f)
 					if(moons.length < 300 && won) moons = m :: moons
 				}
 				Schedule.after(35 seconds){ reset() }
@@ -255,11 +255,11 @@ object Script extends SeerScript {
 			// 		Schedule.every(0.1 seconds){
 			// 			val s = Random.float()*.3f + .1f
 			// 			val m = new Moon(s)
-			// 			m.position.set(Random.vec3().normalized * 3.f)
+			// 			m.position.set(Random.vec3().normalized * 3f)
 			// 			m.lPosition.set( m.position - Random.vec3()*0.05f )		
 			// 			m.orientation.set(Random.quat())
 			// 			m.lOrientation.set(m.orientation.slerp(Random.quat(),0.01))
-			// 			m.model.material.color = RGBA(p.color,1.f)
+			// 			m.model.material.color = RGBA(p.color,1f)
 			// 			if(moons.length < 300 && won) moons = m :: moons
 			// 		}
 			// 		Schedule.after(35 seconds){ reset() }
@@ -267,9 +267,9 @@ object Script extends SeerScript {
 			// }
 		}
 		if(won) players.foreach( _.attachedTo = None)
-		// moons(0).position.set(0.f,0,-5.f)
+		// moons(0).position.set(0f,0,-5f)
 
-		val z = 5.f + 10.*players(0).velocity.mag() + zoom 
+		val z = 5f + 10f*players(0).velocity.mag() + zoom 
 		// Camera.nav.pos.lerpTo( players(0).position + Vec3(0,0,z), 0.25)
 		// val nav = Nav()
 		// nav.lookAt( players(0).position )
@@ -317,7 +317,7 @@ object Script extends SeerScript {
 				val d = e2.position - e1.position
 				var r2 = d.magSq()
 				if(d.mag() > e1.r + e2.r){
-					val f = 8. * e1.mass * e2.mass / r2
+					val f = 8f * e1.mass * e2.mass / r2
 					e1.applyForce( d.normalize * f)
 					e2.applyForce( -d.normalize * f)
 				}
@@ -329,7 +329,7 @@ object Script extends SeerScript {
 		for (i <- 0 until numMoons){
 			val s = Random.float()*.5f + .2f
 			val m = new Moon(s)
-			m.position.set(Random.vec3().normalized * 3.f)
+			m.position.set(Random.vec3().normalized * 3f)
 			m.lPosition.set( m.position - Random.vec3()*0.1f )		
 			m.orientation.set(Random.quat())
 			m.lOrientation.set(m.orientation.slerp(Random.quat(),0.01))
