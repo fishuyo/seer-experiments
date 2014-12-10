@@ -6,7 +6,7 @@ import com.fishuyo.seer.dynamic._
 
 object Loader extends SeerApp {
 
-  val live = new SeerScriptLoader("scripts/loader.scala")
+  val live = ScriptLoader("scripts/openni.scala")
 
   override def draw(){}
   override def animate(dt:Float){}

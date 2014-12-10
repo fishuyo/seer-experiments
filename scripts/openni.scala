@@ -8,7 +8,7 @@ import dynamic._
 import io._
 import util._
 
-import openni._
+import com.fishuyo.seer.openni._
 
 import com.badlogic.gdx.graphics.{Texture => GdxTexture}
 import com.badlogic.gdx.graphics.Pixmap
@@ -21,16 +21,22 @@ import com.badlogic.gdx.graphics.Pixmap
 // Scene.alpha = 1.
 // SceneGraph.root.depth = true
 
+// import concurrent.Await
+// import concurrent.duration._
+
 
 object Script extends SeerScript {
 
   var inited = false
 
-  OpenNI.connect()
-	val context = OpenNI.context
+  OpenNI.initAll()
+  OpenNI.start()
 
-	val quad1 = Plane().scale(1,-480.f/640.f,1).translate(-1.5,0,0)
-	val quad2 = Plane().scale(1,-480.f/640.f,1).translate(1,0,0)
+
+  val stickman = new StickMan(OpenNI.getSkeleton(1))
+
+	val quad1 = Plane().scale(1,-480f/640f,1).translate(-1.5,0,0)
+	val quad2 = Plane().scale(1,-480f/640f,1).translate(1,0,0)
   val dpix = new Pixmap(640,480, Pixmap.Format.RGBA8888)
   val vpix = new Pixmap(640,480, Pixmap.Format.RGBA8888)
   var tex1:GdxTexture = _
@@ -44,17 +50,19 @@ object Script extends SeerScript {
 		tex2 = new GdxTexture(vpix)
 		quad1.material = Material.basic
 		quad1.material.texture = Some(tex1)
-		quad1.material.textureMix = 1.f
+		quad1.material.textureMix = 1f
 		quad2.material = Material.basic
 		quad2.material.texture = Some(tex2)
-		quad2.material.textureMix = 1.f
+		quad2.material.textureMix = 1f
   	inited = true
   }
 
 	override def draw(){
 		FPS.print
 
-		OpenNI.updateDepth()
+		// OpenNI.updateDepth()
+
+    stickman.draw
 
 		quad1.draw
 		quad2.draw
@@ -64,6 +72,8 @@ object Script extends SeerScript {
 	override def animate(dt:Float){
 		if(!inited) init()
 
+    stickman.animate(dt)
+    
   	val bb = dpix.getPixels
 		bb.put(OpenNI.imgbytes)
 		bb.rewind
@@ -85,6 +95,8 @@ object Script extends SeerScript {
   }
 
 }
+
+
 
 
 Script
