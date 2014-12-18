@@ -1,15 +1,6 @@
 
-
-import com.fishuyo.seer._
-
-import graphics._
-import spatial._
-import dynamic._
-import io._
-import util._
-
-import openni._
-import cv._
+import com.fishuyo.seer.openni._
+import com.fishuyo.seer.cv._
 
 import org.opencv.core._
 import org.opencv.highgui._
@@ -23,15 +14,16 @@ object Script extends SeerScript {
 
   var inited = false
 
-  OpenNI.connect()
-	val context = OpenNI.context
+  OpenNI.initAll()
+  OpenNI.alignDepthToRGB()
+  OpenNI.start()
 
 	OpenCV.loadLibrary()
 
 	val loop = new VideoLoop
 
-	val quad1 = Plane().scale(1,-480.f/640.f,1).translate(-1.5,0,0)
-	val quad2 = Plane().scale(1,-480.f/640.f,1).translate(1,0,0)
+	val quad1 = Plane().scale(1,-480f/640f,1).translate(-1.5,0,0)
+	val quad2 = Plane().scale(1,-480f/640f,1).translate(1,0,0)
   val dpix = new Pixmap(640,480, Pixmap.Format.RGBA8888)
   val vpix = new Pixmap(640,480, Pixmap.Format.RGBA8888)
   var tex1:GdxTexture = _
@@ -53,21 +45,18 @@ object Script extends SeerScript {
 		tex2 = new GdxTexture(vpix)
 		quad1.material = Material.basic
 		quad1.material.texture = Some(tex1)
-		quad1.material.textureMix = 1.f
+		quad1.material.textureMix = 1f
 		quad2.material = Material.basic
 		quad2.material.texture = Some(tex2)
-		quad2.material.textureMix = 1.f
+		quad2.material.textureMix = 1f
   	inited = true
   }
 
 	override def draw(){
 		FPS.print
 
-		OpenNI.updateDepth()
-
 		quad1.draw
 		quad2.draw
-
 	}
 
 	override def animate(dt:Float){
@@ -136,20 +125,20 @@ object Script extends SeerScript {
   Keyboard.bind("x", () => loop.stack() )
   Keyboard.bind("c", () => loop.clear() )
   Keyboard.bind("	", () => loop.reverse() )
-  Keyboard.bind("j", () => loop.setAlphaBeta(1.f,.99f) )
+  Keyboard.bind("j", () => loop.setAlphaBeta(1f,.99f) )
   Keyboard.bind("b", () => bg = !bg )
   Keyboard.bind("v", () => subtract = !subtract )
   Keyboard.bind("z", () => depth = !depth )
 
-  Keyboard.bind("p", () => video.ScreenCapture.toggleRecord )
+  Keyboard.bind("p", () => com.fishuyo.seer.video.ScreenCapture.toggleRecord )
   Keyboard.bind("o", () => loop.writeToFile("",1.0,"mpeg4") )
 
 
   Mouse.clear()
 	Mouse.use()
 	Mouse.bind("drag", (i) => {
-		val y = (Window.height - i(1)*1.f) / Window.height
-	  val x = (i(0)*1.f) / Window.width
+		val y = (Window.height - i(1)*1f) / Window.height
+	  val x = (i(0)*1f) / Window.width
 	  // # decay = (decay + 4)/8
 	  // # Loop.loop.setSpeed(speed)
 		// loop.setAlphaBeta(decay, speed)

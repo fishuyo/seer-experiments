@@ -1,29 +1,8 @@
 
-
-import com.fishuyo.seer._
-
-import graphics._
-import spatial._
-import dynamic._
-import io._
-import util._
-
 import com.fishuyo.seer.openni._
 
 import com.badlogic.gdx.graphics.{Texture => GdxTexture}
 import com.badlogic.gdx.graphics.Pixmap
-
-// import org.openni._
-// import java.nio.ShortBuffer
-// import java.nio.ByteBuffer
-
-
-// Scene.alpha = 1.
-// SceneGraph.root.depth = true
-
-// import concurrent.Await
-// import concurrent.duration._
-
 
 object Script extends SeerScript {
 
@@ -31,17 +10,21 @@ object Script extends SeerScript {
 
   OpenNI.initAll()
   OpenNI.start()
-
+  OpenNI.pointCloud = true
 
   val stickman = new StickMan(OpenNI.getSkeleton(1))
 
 	val quad1 = Plane().scale(1,-480f/640f,1).translate(-1.5,0,0)
 	val quad2 = Plane().scale(1,-480f/640f,1).translate(1,0,0)
-  val dpix = new Pixmap(640,480, Pixmap.Format.RGBA8888)
-  val vpix = new Pixmap(640,480, Pixmap.Format.RGBA8888)
+  val dpix = new Pixmap(640,480, Pixmap.Format.RGB888)
+  val vpix = new Pixmap(640,480, Pixmap.Format.RGB888)
   var tex1:GdxTexture = _
   var tex2:GdxTexture = _
 
+  val mesh = new Mesh()
+  mesh.primitive = Points 
+  mesh.maxVertices = 640*480
+  val model = Model(mesh)
 
   override def init(){
   	// loadShaders()
@@ -64,8 +47,10 @@ object Script extends SeerScript {
 
     stickman.draw
 
-		quad1.draw
-		quad2.draw
+		// quad1.draw
+		// quad2.draw
+
+    model.draw
 
 	}
 
@@ -74,16 +59,23 @@ object Script extends SeerScript {
 
     stickman.animate(dt)
     
-  	val bb = dpix.getPixels
-		bb.put(OpenNI.imgbytes)
-		bb.rewind
-		tex1.draw(dpix,0,0)
+  // 	val bb = dpix.getPixels
+		// bb.put(OpenNI.depthBytes)
+		// bb.rewind
+		// tex1.draw(dpix,0,0)
 
-		val bb2 = vpix.getPixels
-		bb2.put(OpenNI.rgbbytes)
-		bb2.rewind
-		tex2.draw(vpix,0,0)
-	}
+		// val bb2 = vpix.getPixels
+		// bb2.put(OpenNI.rgbBuffer)
+		// bb2.rewind
+		// tex2.draw(vpix,0,0)
+
+    try{
+      // OpenNI.updatePoints()
+      mesh.clear
+      mesh.vertices ++= OpenNI.pointMesh.vertices
+      mesh.update
+	  } catch { case e:Exception => println(e) }
+  }
 
 	def loadShaders(){
     // Shader.load("rd", File("shaders/basic.vert"), File("shaders/rd_img.frag")).monitor
