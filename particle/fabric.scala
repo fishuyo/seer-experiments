@@ -1,37 +1,31 @@
 
-package com.fishuyo.seer
-package examples.particleSystems.verletFabric
+// package com.fishuyo.seer
+// package examples.particleSystems.verletFabric
 
-import graphics._
-import dynamic._
-import maths._
-import particle._
-import objects._
+// import graphics._
+// import dynamic._
+// import maths._
+// import particle._
+// import objects._
 
-object Main extends App with Animatable{
+// object Main extends SeerApp {
 
-  DesktopApp.loadLibs()
-  Scene.push(this)
+//   // val live = new JS("fabric.js")
+//   val live = new ScriptLoader("fabric.scala")
 
-  val live = new JS("fabric.js")
+//   val fabric = new Fabric()
 
-  val fabric = new Fabric()
+//   override def draw(){
+//     // Shader.lightingMix = 0.f
+//   	fabric.draw()
+//   }
 
+//   override def animate(dt:Float){
+//   	// fabric.animate(dt)
+//     // live.animate(dt)
+//   }
 
-  DesktopApp()  
-
-  override def draw(){
-    Shader.lightingMix = 0.f
-  	fabric.draw()
-  }
-
-  override def animate(dt:Float){
-  	fabric.animate(dt)
-    live.animate(dt)
-  }
-
-}
-
+// }
 
 
 

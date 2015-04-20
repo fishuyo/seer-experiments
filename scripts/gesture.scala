@@ -2,12 +2,12 @@
 import com.fishuyo.seer._
 import dynamic._
 import graphics._
-import maths._
+import spatial._
 import util._
 import io._
+import com.fishuyo.seer.types._
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.GL10
 
 import collection.mutable.ListBuffer
 import collection.mutable.ArrayBuffer
@@ -34,19 +34,19 @@ class Gesture extends Animatable {
 	def +=(p:Vec3){
 		def v2width(vel:Float) = {
 			var v = vel
-			if( v == -1.f) v = 0.f
-			val scale = 18.f
+			if( v == -1f) v = 0f
+			val scale = 18f
 			val size = 10
 	    val minP = 0.02f
-	    val oldP = if(buffer.length > 0) buffer.last._2 else 0.f
-	    ((minP + size*math.max(0.f, 1.f - v/scale)) + (4.f*oldP))*1.f/5.f
-			// if( v == -1.f) 5.f 
-			// else 100.f/(v*v) + .1f
+	    val oldP = if(buffer.length > 0) buffer.last._2 else 0f
+	    ((minP + size*math.max(0f, 1f - v/scale)) + (4f*oldP))*1f/5f
+			// if( v == -1f) 5f 
+			// else 100f/(v*v) + .1f
 		}
-		var v = -1.f
+		var v = -1f
 		if(buffer.length > 0) v = (buffer.last._1 - p).mag
 		val w = v2width(v)
-		if(v == -1.f || v > 0.1f) buffer += (p,w)
+		if(v == -1f || v > 0.1f) buffer += (p,w)
 	}
 
 	def ribbonize(line:Seq[Vec3], width:Seq[Float]) = {
@@ -72,7 +72,7 @@ class Gesture extends Animatable {
 			case (vs@(v0::v1::v2::Nil),w) => 
 				val norm = findNorm(vs)
 				val nd = pn dot norm
-				if( nd < 0.f) norm *= -1
+				if( nd < 0f) norm *= -1
 				pn = norm
 				vert += v1 + norm * w
 				vert += v1 - norm * w
@@ -138,19 +138,19 @@ object Script extends SeerScript {
 
 	implicit def f2i(f:Float) = f.toInt
 
-	var t = 0.f
+	var t = 0f
 	val buf = new RingBuffer[(Vec3,Float)](100)
 
 	val joints = HashMap[String,Gesture]()
 	val gestures = ListBuffer[Gesture]()
 	var gest:Option[Gesture] = None
 
-	Shader.bg = RGB.black
-	SceneGraph.root.camera = new OrthographicCamera(800,800)
-	SceneGraph.root.camera.nav.pos.set(0,0,1)
+	Renderer().environment.backgroundColor = RGB.black
+	Renderer().camera = new OrthographicCamera(800,800)
+	Renderer().camera.nav.pos.set(0,0,1)
 
 	val circles = for(i <- 0 to 100) yield {
-		val c = Circle().translate(i/2.f,0,0).scale(0.5f)
+		val c = Circle().translate(i/2f,0,0).scale(0.5f)
 		c.material = Material.basic
 		c.material.color = HSV(0,0,0)
 		c
@@ -165,11 +165,11 @@ object Script extends SeerScript {
 		gest = None
 	})
 	Mouse.bind("drag", (i) =>{ 
-		val r = SceneGraph.root.camera.ray(Mouse.x()*Window.width, (1.f-Mouse.y()) * Window.height)
+		val r = Renderer().camera.ray(Mouse.x()*Window.width, (1f-Mouse.y()) * Window.height)
 		val t = r.intersectQuad(Vec3(0),Window.width,Window.height,Camera.nav.quat)
 		if(t.isDefined){
 			val p = r(t.get)
-			var v = -1.f
+			var v = -1f
 			gest.get += p
 		}
 	})
@@ -197,7 +197,7 @@ object Script extends SeerScript {
 		val name = f(0).asInstanceOf[String]
 
 		val z = f(4).asInstanceOf[Float]
-		val pos = Vec3(400.f*(f(2).asInstanceOf[Float]-.5f), 800.f*(1.f-f(3).asInstanceOf[Float]), 0.f) 
+		val pos = Vec3(400f*(f(2).asInstanceOf[Float]-.5f), 800f*(1f-f(3).asInstanceOf[Float]), 0f) 
 
 		name match {
 			case "l_hand" | "r_hand" =>
@@ -248,7 +248,7 @@ object Script extends SeerScript {
  //    }
  //  }
  //  blur.scene.push( quag )
- //  SceneGraph.root.outputTo(blur)
+ //  Renderer().outputTo(blur)
  //  blur.outputTo(blur)
  //  blur.outputTo(ScreenNode)
 	// })

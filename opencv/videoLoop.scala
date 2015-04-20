@@ -21,9 +21,9 @@ import org.opencv.core._
 import org.opencv.highgui._
 import org.opencv.imgproc._
 
-object Main extends SeerApp {
+object VideoLooper extends SeerApp {
 
-  System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME)
+  // System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME)
 
 	var capture: VideoCapture = _
   var bgsub = new BackgroundSubtract
@@ -107,9 +107,9 @@ object Main extends SeerApp {
   }
 
   override def draw(){
-    Shader.lightingMix = 1.f
-  	Shader.textureMix = 1.f
-  	Texture.bind(0)
+    // Shader.lightingMix = 1.f
+  	// Shader.textureMix = 1.f
+  	// Texture.bind(0)
   	cube.draw()
     Sphere().draw
   }
@@ -188,6 +188,36 @@ object Main extends SeerApp {
     out.release
   }
 
+
+
+  Keyboard.clear
+  Keyboard.use
+  Keyboard.bind("r", () => loop.toggleRecord() )
+  Keyboard.bind("t", () => loop.togglePlay() )
+  Keyboard.bind("x", () => loop.stack() )
+  Keyboard.bind("c", () => loop.clear() )
+  Keyboard.bind(" ", () => loop.reverse() )
+  Keyboard.bind("j", () => loop.setAlphaBeta(1f,.99f) )
+  Keyboard.bind("b", () => bg = !bg )
+  Keyboard.bind("v", () => subtract = !subtract )
+  // Keyboard.bind("z", () => depth = !depth )
+
+  Keyboard.bind("p", () => com.fishuyo.seer.video.ScreenCapture.toggleRecord )
+  Keyboard.bind("o", () => loop.writeToFile("",1.0,"mpeg4") )
+
+
+  Mouse.clear()
+  Mouse.use()
+  Mouse.bind("drag", (i) => {
+    val y = (Window.height - i(1)*1f) / Window.height
+    val x = (i(0)*1f) / Window.width
+    // # decay = (decay + 4)/8
+    // # Loop.loop.setSpeed(speed)
+    // loop.setAlphaBeta(decay, speed)
+    println(s"$x $y")
+    // loop.setAlpha(x)
+    loop.setAlphaBeta(x,y)
+  })
 }
 
 

@@ -8,6 +8,146 @@ import com.badlogic.gdx.graphics.Pixmap
 
 import collection.mutable.ArrayBuffer
 
+
+import collection.mutable.ListBuffer
+import collection.mutable.HashMap
+import collection.mutable.HashSet
+
+
+class Branch(var parent:Branch, var pos:Vec3, var growDirection:Vec3){
+  var growDirection0 = Vec3(growDirection)
+  var growCount = 0
+
+  def reset(){
+    growCount = 0
+    growDirection = growDirection0
+  }
+}
+
+class Leaf(var pos:Vec3){
+  var closest:Branch = null
+}
+
+class Tree {
+  var done = false
+  var pos = Vec3(0,0,-3)
+
+  var leafCount = 400
+  var treeWidth = 80    
+  var treeHeight = 150   
+  var trunkHeight = 40
+  var minDistance = 0.05
+  var maxDistance = 0.1 //0.35
+  var branchLength = 0.04
+ 
+  var root = new Branch(null, pos, Vec3(0,1,0))
+  var leaves = ListBuffer[Leaf]()
+  var branches = HashMap[Vec3,Branch]()
+
+  branches += (root.pos -> root)
+  branches += (Vec3(0,0.1,-3) -> new Branch(root, Vec3(0,0.1,-3), Vec3(0,1,0)))
+
+
+  // for( i <- (0 until leafCount))
+    // leaves += new Leaf(Random.vec3())
+
+  def reset(){
+    branches.clear
+    leaves.clear
+    branches += (root.pos -> root)
+  }
+
+  def grow(){
+
+    // if( done ) return
+
+    //If no leaves left, we are done
+    if (leaves.size == 0) { 
+        // done = true
+        return
+    }
+
+    //process the leaves
+    var i = 0
+    while( i < leaves.size){
+
+      var leafRemoved = false
+
+      var direction = Vec3()
+      val leaf = leaves(i)
+      leaf.closest = null
+
+      //Find the nearest branch for this leaf
+      var break = false
+      branches.values.foreach( (b) => { 
+        if(!break){
+          direction = leaf.pos - b.pos
+          val dist = direction.mag
+          direction.normalize 
+
+          if( dist <= minDistance){
+            leaves -= leaf
+            i -= 1
+            leafRemoved = true
+            break = true
+          } else if( dist <= maxDistance){
+            if( leaf.closest == null)
+              leaf.closest = b 
+            else if ( (leaf.pos - leaf.closest.pos).mag > dist)
+              leaf.closest = b
+          }
+        }
+      })
+
+      //if the leaf was removed, skip
+      if (!leafRemoved){
+          //Set the grow parameters on all the closest branches that are in range
+          if (leaf.closest != null){
+              val dir = leaf.pos - leaf.closest.pos
+              dir.normalize()
+              leaf.closest.growDirection += dir       //add to grow direction of branch
+              leaf.closest.growCount += 1
+          }
+      }
+
+      i += 1
+    }
+
+    //Generate the new branches
+    val newBranches = HashSet[Branch]()
+    branches.values.foreach( (b) => {
+      if (b.growCount > 0){    //if at least one leaf is affecting the branch
+      
+          val avgDirection = b.growDirection / b.growCount
+          avgDirection.normalize()
+
+          val newBranch = new Branch(b, b.pos + avgDirection * branchLength, avgDirection);
+
+          newBranches += newBranch
+          b.reset()
+      }
+    })
+
+    //Add the new branches to the tree
+    var branchAdded = false;
+    newBranches.foreach( (b) => {
+      //Check if branch already exists.  These cases seem to happen when leaf is in specific areas
+      if (!branches.contains(b.pos)){
+        branches += (b.pos -> b)
+        branchAdded = true
+      }
+    })
+    
+    //if no branches were added - we are done
+    //this handles issues where leaves equal out each other, making branches grow without ever reaching the leaf
+    // if (!branchAdded) done = true
+
+  }
+}
+
+
+
+
 object Script extends SeerScript {
 
   var inited = false
@@ -56,6 +196,50 @@ object Script extends SeerScript {
 
   val maxTraces = 1000
 
+
+
+  var grow = false
+  val tree = new Tree
+
+  val leafMesh = Mesh()
+  leafMesh.primitive = Points
+  leafMesh.maxVertices = 100000 //tree.leafCount
+
+  val treeMesh = Mesh()
+  treeMesh.primitive = Lines
+  treeMesh.maxVertices = 100000
+  val treeModel = Model(treeMesh)
+  treeModel.material = Material.basic
+  treeModel.material.color = RGBA(0.6,0.6,0.6,0.1)
+  treeModel.material.transparent = true
+
+
+  var limit = 0f
+
+
+  Keyboard.clear
+  Keyboard.use
+  Keyboard.bind("g", () => { grow = !grow })
+  Keyboard.bind("r", () => { tree.reset })
+
+  // var cursor = Vec3()
+  // Trackpad.clear
+  // Trackpad.connect
+  // Trackpad.bind((touch) => {
+
+  //   val v = touch.fingers(0).vel
+  //   // val t = touch.fingers(0).pos
+  //   cursor += Vec3(v.x,v.y,0) * 0.01f
+
+  //   if(limit == 0f){
+  //     val p = cursor + (Random.vec3() * 0.05f)
+  //     tree.leaves += new Leaf(p)
+  //   }
+  // })
+
+
+
+
   override def init(){
 
     inited = true
@@ -76,8 +260,28 @@ object Script extends SeerScript {
     Renderer().environment.depth = false
     Renderer().environment.blend = true
     Renderer().environment.alpha = 0.1f
+    Renderer().environment.lineWidth = 1f
+
 
     model.draw
+
+    // leafMesh.clear()
+    // leafMesh.vertices ++= tree.leaves.map( _.pos )
+    // leafMesh.update()
+    // leafMesh.draw()
+
+    Renderer().environment.lineWidth = 2f
+    Renderer().environment.alpha = 1f
+
+    treeMesh.clear()
+    tree.branches.values.foreach( (b) => {
+      if(b.parent != null){
+        treeMesh.vertices += b.pos
+        treeMesh.vertices += b.parent.pos
+      }
+    })
+    treeMesh.update()
+    treeModel.draw()
     // mesh.vertices.foreach{ case v =>
     //   sphereModel.pose.pos.set(v)
     //   sphereModel.draw
@@ -106,6 +310,11 @@ object Script extends SeerScript {
       val index = Random.int(mesh.vertices.length)
       mesh.indices ++= (0 until numIndices).map( _ => index() )
       mesh.update
+
+      tree.leaves.clear
+      tree.leaves ++= OpenNI.pointMesh.vertices.map( new Leaf(_) )
+      if(grow) tree.grow()
+
 
     // for( i <- 0 until maxTraces){
     //   val v = OpenNI.pointMesh.vertices(i)
