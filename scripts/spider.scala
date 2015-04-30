@@ -1,143 +1,149 @@
 
+
+
 import com.fishuyo.seer._
 import graphics._
 import dynamic._
 import maths._
 import io._
 import util._
-import particle._
+import com.fishuyo.seer.particle._
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 
-Scene.alpha = 0.5
-SceneGraph.root.depth = false
+// Scene.alpha = 0.5
+// RenderGraph.root.depth = false
 
 object Script extends SeerScript {
-	implicit def f2i(f:Float) = f.toInt
+  implicit def f2i(f:Float) = f.toInt
 
-	val mesh = Mesh()
-	mesh.maxVertices = 1000
-	mesh.maxIndices = 1000
-	mesh.primitive = LineStrip
-	val s = new SpringMesh(mesh,1.f)
-	s.updateNormals = false
-	val m = Model(s)
+  val mesh = Mesh()
+  mesh.maxVertices = 1000
+  mesh.maxIndices = 1000
+  mesh.primitive = LineStrip
+  val s = new SpringMesh(mesh,1f)
+  s.updateNormals = false
+  val m = Model(s)
 
-	val spider = Sphere().scale(0.05)
-	s += Particle(Vec3(0,4,0))
-	s += Particle(Vec3(0,3.9,0))
-	s.pins += AbsoluteConstraint(s.particles.head,Vec3(0,4,0))
-	s.springs += LinearSpringConstraint(s.particles.head, s.particles.last, 0.1f, 0.2f)		
+  val spider = Sphere().scale(0.05)
+  s += Particle(Vec3(0,4,0))
+  s += Particle(Vec3(0,3.9,0))
+  s.pins += AbsoluteConstraint(s.particles.head,Vec3(0,4,0))
+  s.springs += LinearSpringConstraint(s.particles.head, s.particles.last, 0.1f, 0.2f)   
 
-	val cursor = Sphere().scale(0.05)
-	var lpos = Vec2()
-	var vel = Vec2()
+  val cursor = Sphere().scale(0.05)
+  var lpos = Vec2()
+  var vel = Vec2()
 
-	var t=0.f
+  var t=0f
 
-	Gravity.set(0,-5,0)
+  Gravity.set(0,-5,0)
 
-	override def draw(){
-		Shader("s1")
-
-		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE)
-    S.shaders("s1").uniforms("time") = 1
-    S.shaders("s1").uniforms("color") = RGB(0,0.6,0.6)
-
-		// Shader.setMatrices
-		Shader("s1").begin
-		m.draw
-		cursor.draw
-
-		Shader("s1").end
-
-	}
-
-	override def animate(dt:Float){
-
-		if(t==0.f){
-			println("add")
-			s += Particle(s.particles.last.position+Vec3(0,-.01,0))
-			s.springs += LinearSpringConstraint(s.particles.takeRight(2).head, s.particles.last, 0.01f, 0.2f)		
-		}else if( t > 0.f){
-			s.springs.last.length += 0.0001f
-		}
-		t += dt
-
-		if(t > 1.f){
-			println("reset")
-			t = 0.f
-		}
+  Renderer().shader = Shader.load(S.vert,S.frag1)
+  // Run(()=>{ S.shaders("s1") = Shader.load("s1",S.vert,S.frag1)})
 
 
+  override def draw(){
+    // Shader("s1")
+
+    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE)
+    Renderer().shader.uniforms("time") = 1
+    Renderer().shader.uniforms("color") = RGB(0,0.6,0.6)
+
+    // Shader.setMatrices
+    // Shader("s1").begin
+    m.draw
+    cursor.draw
+
+    // Shader("s1").end
+
+  }
+
+  override def animate(dt:Float){
+
+    if(t==0f){
+      println("add")
+      s += Particle(s.particles.last.position+Vec3(0,-.01,0))
+      s.springs += LinearSpringConstraint(s.particles.takeRight(2).head, s.particles.last, 0.01f, 0.2f)   
+    }else if( t > 0f){
+      s.springs.last.length += 0.0001f
+    }
+    t += dt
+
+    if(t > 1f){
+      println("reset")
+      t = 0f
+    }
 
 
-		if( Mouse.status() == "drag"){
-			vel = (Mouse.xy() - lpos)/dt
-			// println(vel)
-			// s.applyForce( Vec3(vel.x,vel.y,0)*10.f)
-			val r = Camera.ray(Mouse.x()*Window.width, (1.f-Mouse.y()) * Window.height)
-			s.particles.foreach( (p) => {
-				val t = r.intersectSphere(p.position, 0.25f)
-				if(t.isDefined){
-					// val p = r(t.get)
-					p.applyForce(Vec3(vel.x,vel.y,0)*150.f)
-					cursor.pose.pos.set(r(t.get))
-				}
-			})
-		}
-		lpos = Mouse.xy()
 
-		s.animate(dt)
-	}
 
-	Trackpad.clear
-	Trackpad.connect
-	Trackpad.bind( (i,f)=>{
-		i match{
-			// case 1 => s.applyForce( Vec3(f(0)-.5f,f(1)-.5f,0)*10.f)
-			//case 3 => Gravity.set(Vec3(f(0)-.5f,f(1)-.5f,0)*10.f)
-			case _ => ()
-		}
-	})
+    if( Mouse.status() == "drag"){
+      vel = (Mouse.xy() - lpos)/dt
+      // println(vel)
+      // s.applyForce( Vec3(vel.x,vel.y,0)*10.f)
+      val r = Camera.ray(Mouse.x()*Window.width, (1f-Mouse.y()) * Window.height)
+      s.particles.foreach( (p) => {
+        val t = r.intersectSphere(p.position, 0.25f)
+        if(t.isDefined){
+          // val p = r(t.get)
+          p.applyForce(Vec3(vel.x,vel.y,0)*150f)
+          cursor.pose.pos.set(r(t.get))
+        }
+      })
+    }
+    lpos = Mouse.xy()
 
-	Mouse.clear
-	Mouse.use
+    s.animate(dt)
+  }
 
-	Keyboard.clear()
-	Keyboard.use()
-	Keyboard.bind("p", () =>{
+  Trackpad.clear
+  Trackpad.connect
+  Trackpad.bind( touch =>{
+    touch match{
+      // case 1 => s.applyForce( Vec3(f(0)-.5f,f(1)-.5f,0)*10.f)
+      //case 3 => Gravity.set(Vec3(f(0)-.5f,f(1)-.5f,0)*10.f)
+      case _ => ()
+    }
+  })
+
+  Mouse.clear
+  Mouse.use
+
+  Keyboard.clear()
+  Keyboard.use()
+  Keyboard.bind("p", () =>{
     println(Camera.nav.pos)
   })
   Keyboard.bind("v", () =>{
-    SceneGraph.root.outputs.clear
+    RenderGraph.roots(0).outputs.clear
     ScreenNode.inputs.clear
-    SceneGraph.root.outputTo(ScreenNode)
+    RenderGraph.roots(0).outputTo(ScreenNode)
   })
   Keyboard.bind("f", () =>{
     Run(()=>{
-      SceneGraph.root.outputs.clear
+      RenderGraph.roots(0).outputs.clear
       ScreenNode.inputs.clear
 
       val feedback = new RenderNode
-      feedback.shader = "composite"
-      feedback.clear = false
-      feedback.scene.push(Plane())
-      SceneGraph.root.outputTo(feedback)
+      feedback.renderer.shader = Shader.load(DefaultShaders.composite)
+      feedback.renderer.clear = false
+      feedback.renderer.scene.push(Plane())
+      RenderGraph.roots(0).outputTo(feedback)
       feedback.outputTo(feedback)
       feedback.outputTo(ScreenNode)
 
-      Shader("composite")
-      Shader.shader.get.uniforms("u_blend0") = 0.2
-      Shader.shader.get.uniforms("u_blend1") = 0.9
+      // Shader("composite")
+      feedback.renderer.shader.uniforms("u_blend0") = 0.5
+      feedback.renderer.shader.uniforms("u_blend1") = 0.999
     })
   })
 
 
-	// VRPN.clear
-	// VRPN.bind("b",(p) => {
-	// })
+  // VRPN.clear
+  // VRPN.bind("b",(p) => {
+  // })
 }
 
 
@@ -183,6 +189,5 @@ object S {
     }
   """
 }
-Run(()=>{ S.shaders("s1") = Shader.load("s1",S.vert,S.frag1)})
 
 Script
