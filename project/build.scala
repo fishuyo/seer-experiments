@@ -62,4 +62,16 @@ object ExperimentsBuild extends Build {
     settings = BuildSettings.app
   ) dependsOn( seer_gdx_desktop_app, seer_multitouch, seer_openni )
 
+  lazy val experiments_methetree = SeerProject (
+    "methetree",
+    file("methetree"),
+    settings = BuildSettings.app
+  ) dependsOn( seer_gdx_desktop_app, seer_multitouch, seer_openni )
+
+  lazy val experiments_dailyworlds = SeerProject (
+    "dailyworlds",
+    file("dailyworlds"),
+    settings = BuildSettings.app
+  ) dependsOn( seer_gdx_desktop_app, seer_multitouch, seer_openni )
+
 }

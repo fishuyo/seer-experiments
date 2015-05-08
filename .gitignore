@@ -9,3 +9,6 @@ project/plugins/project
 
 res/
 assets/
+
+*.obj
+*.xyz
