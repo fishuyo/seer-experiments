@@ -40,9 +40,13 @@ object Script extends SeerScript {
   var grow = false
   val tree = new Tree
 
-  tree.minDistance = 0.05
+  // tree.minDistance = 0.05
+  // tree.maxDistance = 0.1 //0.35
+  // tree.branchLength = 0.04
+
+  tree.minDistance = 0.03 //0.05
   tree.maxDistance = 0.1 //0.35
-  tree.branchLength = 0.04
+  tree.branchLength = 0.02 //0.03
 
   // val leafMesh = Mesh()
   // leafMesh.primitive = Points
@@ -50,7 +54,7 @@ object Script extends SeerScript {
 
   val treeMesh = Mesh()
   treeMesh.primitive = Points
-  treeMesh.maxVertices = 100000
+  treeMesh.maxVertices = 1000000
   val treeModel = Model(treeMesh)
   treeModel.material = Material.basic
   treeModel.material.color = RGBA(1,1,1,1)
@@ -63,13 +67,18 @@ object Script extends SeerScript {
   Keyboard.bind("g", () => { grow = !grow })
   Keyboard.bind("r", () => { tree.reset;  })
   Keyboard.bind("p", () => { write = true })
+
+  import scala.concurrent.duration._
+  Schedule.every(10 seconds){
+    write = true
+  }
  
 
   override def init(){
     inited = true
     Camera.nav.pos.set(0f,0f,-0.8334836f)
     // tree.root.pos.set(0,0,-1)
-    tree.root.pos.set(0,0.1,-1.6)
+    tree.root.pos.set(0,0,-2)
   }
 
   override def draw(){
@@ -86,17 +95,18 @@ object Script extends SeerScript {
     // Renderer().environment.alpha = 1f
 
     treeMesh.clear()
-    tree.branches.getAll.values.foreach( (b) => {
-      if(b.parent != null){
+    // tree.branches.getAll.values.foreach( (b) => {
+      // if(b.parent != null){
         // treeMesh.vertices += b.pos
         // treeMesh.normals += Vec3(0,0,1)
         // treeMesh.vertices += b.parent.pos
         // treeMesh.normals += Vec3(0,0,1)
 
         // drawBranchRect(treeMesh, b)
-        drawBranchRing(treeMesh, b)
-      }
-    })
+        // drawBranchRing(treeMesh, b)
+      // }
+    // })
+    drawTreeRing(treeMesh,tree)
     treeMesh.update()
     treeModel.draw()
     if(write){
@@ -149,6 +159,47 @@ object Script extends SeerScript {
       // m.vertices += b.parent.pos + off2
       // m.normals += off2.normalized
     }
+  }
+
+  def drawTreeRing(m:Mesh, b:Tree, r:Float = 0.00001f){
+    
+    val minThick = 0.01
+    val minDist = 0.005
+
+    tree.branches.foreach( (p,b) => {
+
+      if(b.parent != null){
+        // var dir = b.growDirection
+        val dir = b.pos - b.parent.pos
+        val dist = dir.mag()
+        val steps = (dist / minDist).toInt
+
+        val q = Quat().getRotationTo(Vec3(0,0,1), dir.normalized)
+        val vx = q.toX
+        val vz = q.toY 
+
+        for(s <- 0 until steps){
+          val t = s.toFloat / steps
+          val age = b.parent.age * (1-t) + b.age * t
+          var thick = math.log(r*age+1)
+          if( thick < minThick ) thick = minThick
+
+          var n = (2f*math.Pi*thick / minDist).toInt
+          if( n < 4) n = 4
+
+          val pos = b.parent.pos * (1-t) + b.pos * t
+          for( i <- 0 until n){
+            val phase = i.toFloat / n * 2 * Pi
+            val cos = math.cos(phase)
+            val sin = math.sin(phase)
+            val off1 = vx * cos * thick + vz * sin * thick
+            // if(off1.mag < minThick) off1.set(off1.normalized * minThick)
+            m.vertices += pos + off1
+            m.normals += off1.normalized
+          }
+        }
+      }
+    })  
   }
 
   override def animate(dt:Float){

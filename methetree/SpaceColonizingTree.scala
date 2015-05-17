@@ -22,6 +22,7 @@ class Branch(var parent:Branch, var pos:Vec3, var growDirection:Vec3){
 
   def reset(){
     growCount = 0
+    age = 0
     growDirection = growDirection0
   }
 }
@@ -82,7 +83,7 @@ class Tree {
         if(!break){
           direction = leaf.pos - b.pos
           val dist = direction.mag
-          direction.normalize 
+          direction.normalize
 
           if( dist <= minDistance){
             leaves -= leaf
@@ -121,6 +122,7 @@ class Tree {
           val avgDirection = b.growDirection / b.growCount
           avgDirection.normalize()
 
+          // avgDirection.mag() / branchLength
           val newBranch = new Branch(b, b.pos + avgDirection * branchLength, avgDirection);
           b.grow()
 

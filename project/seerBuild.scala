@@ -68,6 +68,19 @@ object SeerBuild extends Build {
     settings = BuildSettings.app
   ) dependsOn( seer_gdx_desktop_app, seer_jruby, seer_portaudio  )
 
+  // // examples
+  // lazy val examples = SeerProject (
+  //   "examples",
+  //   file("examples"),
+  //   settings = BuildSettings.app
+  // ) dependsOn( seer_gdx_desktop_app, seer_multitouch )
+
+  lazy val examples_graphics = SeerProject (
+    "examples-graphics",
+    file("seer/examples/graphics"),
+    settings = BuildSettings.app
+  ) dependsOn( seer_gdx_desktop_app, seer_multitouch )
+
 
     // interaction
   lazy val seer_kinect = SeerProject (

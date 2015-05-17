@@ -9,9 +9,9 @@ object Script extends SeerScript {
   var grow = false
   val tree = new Tree
 
-  tree.minDistance = 0.05
+  tree.minDistance = 0.03 //0.05
   tree.maxDistance = 0.1 //0.35
-  tree.branchLength = 0.03
+  tree.branchLength = 0.02 //0.03
 
   val leafMesh = Mesh()
   leafMesh.primitive = Points
@@ -35,6 +35,11 @@ object Script extends SeerScript {
   val growTime = new PerformanceCounter("grow")
   val drawTime = new PerformanceCounter("draw")
 
+  // import scala.concurrent.duration._
+  // Schedule.every(10 seconds){
+  //   write = true
+  // }
+
   override def draw(){
     FPS.print
     // println(s"grow: ${growTime.load.latest}")
@@ -50,12 +55,13 @@ object Script extends SeerScript {
     if(grow){
       treeMesh.clear()
       // tree.branches.getAll.values.foreach( (b) => {
-      tree.branches.foreach( (p,b) => {
-        // if(b.parent != null){
-          // drawBranchRect(treeMesh, b)
-          drawBranchRing(treeMesh, b)
-        // }
-      })
+      // tree.branches.foreach( (p,b) => {
+      //   // if(b.parent != null){
+      //     // drawBranchRect(treeMesh, b)
+      //     drawBranchRing(treeMesh, b)
+      //   // }
+      // })
+      drawTreeRing(treeMesh,tree, 0.000015)
       treeMesh.update()
     }
     treeModel.draw()
@@ -64,7 +70,7 @@ object Script extends SeerScript {
     growTime.tick()
     drawTime.tick()
 
-    if(write){ writeToPointCloud(treeMesh); write = false }
+    if(write){ treeMesh.writePointCloud(); write = false }
     // MatrixStack.push
     // MatrixStack.translate(cursor)
     Sphere().translate(cursor).scale(0.05).draw
@@ -91,15 +97,22 @@ object Script extends SeerScript {
   }
 
   def drawBranchRing(m:Mesh, b:Branch, r:Float = 0.00001f, steps:Int=1){
-    var n = 1
-    if(b.age < 50) n = 3
-    else if(b.age < 100) n = 4
-    else if(b.age < 150) n = 5
-    else if(b.age < 400) n = 6
-    else if(b.age < 600) n = 10
-    else n = 20
+    
+    val minThick = 0.005
+    val minArcLen = 0.01
+    val thick = math.log(r*b.age+1)
 
-    // if(b.age > 50 ) println(n)
+    
+    var n = (2f*math.Pi*thick / minArcLen).toInt
+    if( n < 3) n = 3
+
+    // var n = 1
+    // if(b.age < 50) n = 3
+    // else if(b.age < 100) n = 4
+    // else if(b.age < 150) n = 5
+    // else if(b.age < 400) n = 6
+    // else if(b.age < 600) n = 10
+    // else n = 20
 
     for( i <- 0 until n){
       val phase = i.toFloat / n * 2 * Pi
@@ -110,11 +123,9 @@ object Script extends SeerScript {
       // if(b.parent == null)
       val q = Quat().getRotationTo(Vec3(0,0,1), dir.normalize) //(b.pos - b.parent.pos).normalize )
       val vx = q.toX
-      // val vz = Vec3(0,0,1)
-      val vz = q.toY         //Vec3(0,0,1)
-      val thick = math.log(r*b.age+1)
+      val vz = q.toY 
       val off1 = vx * cos * thick + vz * sin * thick
-      // if(off1.mag < 0.005) off1.set(off1.normalized * 0.005)
+      if(off1.mag < minThick) off1.set(off1.normalized * minThick)
       // val off2 = vx * cos * b.parent.age + vz * sin * b.parent.age
       // val off2 = child.pose.ur()*x*sc.x + child.pose.uu()*y*sc.y
       m.vertices += b.pos + off1
@@ -122,6 +133,47 @@ object Script extends SeerScript {
       // m.vertices += b.parent.pos + off2
       // m.normals += off2.normalized
     }
+  }
+
+  def drawTreeRing(m:Mesh, b:Tree, r:Float = 0.00001f){
+    
+    val minThick = 0.005
+    val minDist = 0.005
+
+    tree.branches.foreach( (p,b) => {
+
+      if(b.parent != null){
+        // var dir = b.growDirection
+        val dir = b.pos - b.parent.pos
+        val dist = dir.mag()
+        val steps = (dist / minDist).toInt
+
+        val q = Quat().getRotationTo(Vec3(0,0,1), dir.normalized)
+        val vx = q.toX
+        val vz = q.toY 
+
+        for(s <- 0 until steps){
+          val t = s.toFloat / steps
+          val age = b.parent.age * (1-t) + b.age * t
+          var thick = math.log(r*age+1) + minThick
+          // if( thick < minThick ) thick = minThick
+
+          var n = (2f*math.Pi*thick / minDist).toInt
+          if( n < 4) n = 4
+
+          val pos = b.parent.pos * (1-t) + b.pos * t
+          for( i <- 0 until n){
+            val phase = i.toFloat / n * 2 * Pi
+            val cos = math.cos(phase)
+            val sin = math.sin(phase)
+            val off1 = vx * cos * thick + vz * sin * thick
+            // if(off1.mag < minThick) off1.set(off1.normalized * minThick)
+            m.vertices += pos + off1
+            m.normals += off1.normalized
+          }
+        }
+      }
+    })  
   }
 
 
