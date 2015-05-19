@@ -5,73 +5,42 @@ import Keys._
 
 object ExperimentsBuild extends Build {
 
+  import SeerBuildSettings._
 	import SeerBuild._
+  import SeerModulesBuild._
 
-  lazy val aaa_experiments = SeerProject(
-  	id = "experiments",
-  	base = file("."),
-  	settings = BuildSettings.app
-  ) dependsOn( seer_gdx_desktop_app, seer_multitouch, seer_openni, seer_opencv, experiments_tree )
-  
+  lazy val experiments = project.in(file(".")).
+    settings(app: _*).
+    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_openni, seer_opencv, tree)
 
-  lazy val experiments_fieldViewer = SeerProject (
-    "experiments-fieldViewer",
-    file("fieldViewer"),
-    settings = BuildSettings.app
-  ) dependsOn seer_gdx_desktop_app
+  lazy val fieldViewer = project.settings(app: _*).
+    dependsOn(seer_gdx_desktop_app)
 
-  lazy val experiments_particle = SeerProject (
-    "experiments-particle",
-    file("particle"),
-    settings = BuildSettings.app
-  ) dependsOn( seer_gdx_desktop_app )
+  lazy val particle = project.settings(app: _*).
+    dependsOn(seer_gdx_desktop_app)
 
-  lazy val experiments_kinect = SeerProject (
-    "experiments-kinect",
-    file("kinect"),
-    settings = BuildSettings.app
-  ) dependsOn( seer_gdx_desktop_app, seer_kinect )
+  // lazy val kinect = project.settings(app: _*).
+  //   dependsOn(seer_gdx_desktop_app, seer_kinect)
 
-  lazy val experiments_opencv = SeerProject (
-    "experiments-opencv",
-    file("opencv"),
-    settings = BuildSettings.app
-  ) dependsOn( seer_gdx_desktop_app, seer_opencv, seer_multitouch )
+  lazy val opencv = project.settings(app: _*).
+    dependsOn(seer_gdx_desktop_app, seer_opencv, seer_osx_multitouch)
 
-  lazy val experiments_video = SeerProject (
-    "experiments-video",
-    file("video"),
-    settings = BuildSettings.app
-  ) dependsOn( seer_gdx_desktop_app, seer_video )
+  lazy val video = project.settings(app: _*).
+    dependsOn(seer_gdx_desktop_app, seer_video)
 
-  lazy val experiments_openni = SeerProject (
-    "experiments-openni",
-    file("openni"),
-    settings = BuildSettings.app
-  ) dependsOn( seer_gdx_desktop_app, seer_multitouch, seer_video )
+  lazy val openni = project.settings(app: _*).
+    dependsOn(seer_gdx_desktop_app, seer_openni)
 
-  lazy val experiments_morea = SeerProject (
-    "morea",
-    file("morea"),
-    settings = BuildSettings.app
-  ) dependsOn( seer_gdx_desktop_app, seer_multitouch )
+  lazy val morea = project.settings(app: _*).
+    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch)
 
-  lazy val experiments_tree = SeerProject (
-    "tree",
-    file("tree"),
-    settings = BuildSettings.app
-  ) dependsOn( seer_gdx_desktop_app, seer_multitouch, seer_openni )
+  lazy val tree = project.settings(app: _*).
+    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_openni)
 
-  lazy val experiments_methetree = SeerProject (
-    "methetree",
-    file("methetree"),
-    settings = BuildSettings.app
-  ) dependsOn( seer_gdx_desktop_app, seer_multitouch, seer_openni )
+  lazy val methetree = project.settings(app: _*).
+    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_openni)
 
-  lazy val experiments_dailyworlds = SeerProject (
-    "dailyworlds",
-    file("dailyworlds"),
-    settings = BuildSettings.app
-  ) dependsOn( seer_gdx_desktop_app, seer_multitouch, seer_openni )
+  lazy val dailyworlds = project.settings(app: _*).
+    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_openni)
 
 }

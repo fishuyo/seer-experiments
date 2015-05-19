@@ -4,26 +4,25 @@ import Keys._
 
 import com.typesafe.sbt.SbtNativePackager._
 
-import seer.unmanaged._
+// import seer.unmanaged._
 
-
-object BuildSettings {
-  val defaults = Defaults.defaultSettings ++ Seq(
+object SeerBuildSettings {
+  lazy val common = Defaults.defaultSettings ++ Seq(
     organization := "fttttm",
     version := "0.1",
-    scalaVersion := "2.11.2",
+    scalaVersion := "2.11.6",
     exportJars := true,
     autoCompilerPlugins := true,
     scalacOptions += "-Xexperimental",
 
-    SeerLibs.updateGdxTask,
-    SeerLibs.downloadTask
+    SeerUnmanagedLibs.updateGdxTask,
+    SeerUnmanagedLibs.downloadTask
 
     // scalaSource in Compile := baseDirectory.value / "src",
     // resourceDirectory in Compile := baseDirectory.value / "resources"
   )
 
-  lazy val app = packageArchetype.java_application ++ BuildSettings.defaults ++ Seq (
+  lazy val app = packageArchetype.java_application ++ common ++ Seq (
     fork in run := true,
     // javaOptions in run += "-Djava.library.path=.;./lib;/usr/local/lib", 
     javaOptions in run <<= (fullClasspath in Compile) map { (cp) => 
@@ -36,127 +35,51 @@ object BuildSettings {
   )
 }
   
-object SeerProject {
-  def apply(id:String, base:File, settings:Seq[Project.Setting[_]] = BuildSettings.defaults) = Project(id = id, base = base, settings = settings)
-}
-
 object SeerBuild extends Build {
 
+  import SeerBuildSettings._
+  import SeerModulesBuild._
 
   // core
-  lazy val seer_core = SeerProject (
-    id = "seer-core",
-    base = file("seer/seer-core")
-  )
+  lazy val seer_core = project.in(file("seer/seer-core")).settings(common: _*)
 
-  lazy val seer_gdx = SeerProject (
-    id = "seer-gdx",
-    base = file("seer/seer-gdx")
-  ) dependsOn seer_core
+  // libgdx specific code
+  lazy val seer_gdx = project.in(file("seer/seer-gdx")).
+    settings(common: _*).dependsOn(seer_core)
 
-  lazy val seer_gdx_desktop_app = SeerProject (
-    id = "seer-gdx-desktop-app",
-    base = file("seer/seer-gdx/seer-gdx-desktop-app")
-  ) dependsOn (seer_gdx, seer_repl, seer_script)
-
-
+  // libgdx desktop specific code
+  lazy val seer_gdx_desktop_app = project.in(file("seer/seer-gdx/seer-gdx-desktop-app")).
+    settings(common: _*).dependsOn(seer_gdx, seer_script)
 
   // examples
-  lazy val examples = Project (
-    "examples",
-    file("seer/examples"),
-    settings = BuildSettings.app
-  ) dependsOn( seer_gdx_desktop_app, seer_jruby, seer_portaudio  )
+  lazy val examples = project.settings(app: _*).
+    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch)
 
-  // // examples
-  // lazy val examples = SeerProject (
-  //   "examples",
-  //   file("examples"),
-  //   settings = BuildSettings.app
-  // ) dependsOn( seer_gdx_desktop_app, seer_multitouch )
+  lazy val examples_graphics = project.in(file("seer/examples/graphics")).
+    settings(app: _*).dependsOn(seer_gdx_desktop_app, seer_osx_multitouch)
 
-  lazy val examples_graphics = SeerProject (
-    "examples-graphics",
-    file("seer/examples/graphics"),
-    settings = BuildSettings.app
-  ) dependsOn( seer_gdx_desktop_app, seer_multitouch )
+  lazy val examples_actor = project.in(file("seer/examples/actor")).
+    settings(app: _*).dependsOn(seer_gdx_desktop_app)
 
+  lazy val examples_audio = project.in(file("seer/examples/audio")).
+    settings(app: _*).dependsOn(seer_gdx_desktop_app, seer_portaudio)
 
-    // interaction
-  lazy val seer_kinect = SeerProject (
-    "seer-kinect",
-    file("seer/seer-modules/seer-kinect")
-  ) dependsOn( seer_core, seer_opencv )
+  lazy val examples_particle = project.in(file("seer/examples/particle")).
+    settings(app: _*).dependsOn(seer_gdx_desktop_app)
 
-  lazy val seer_leap = SeerProject (
-    "seer-leap",
-    file("seer/seer-modules/seer-leap")
-  ) dependsOn seer_core
+  lazy val examples_trackpad = project.in(file("seer/examples/trackpad")).
+    settings(app: _*).dependsOn(seer_gdx_desktop_app, seer_osx_multitouch)
 
-  lazy val seer_multitouch = SeerProject (
-    "seer-multitouch",
-    file("seer/seer-modules/seer-multitouch")
-  ) dependsOn seer_gdx
+  lazy val examples_video = project.in(file("seer/examples/video")).
+    settings(app: _*).dependsOn(seer_gdx_desktop_app, seer_video)
 
-  lazy val seer_vrpn = SeerProject ( // TODO get vrpn dependency..
-    "seer-vrpn",
-    file("seer/seer-modules/seer-vrpn")
-  ) dependsOn seer_core
+  lazy val examples_opencv = project.in(file("seer/examples/opencv")).
+    settings(app: _*).dependsOn(seer_gdx_desktop_app, seer_opencv)
 
-  lazy val seer_openni = SeerProject(
-    "seer-openni",
-    file("seer/seer-modules/seer-openni")
-  ) dependsOn seer_gdx
+  lazy val examples_openni = project.in(file("seer/examples/openni")).
+    settings(app: _*).dependsOn(seer_gdx_desktop_app, seer_openni)
 
-
-  // image video computer vision
-  lazy val seer_opencv = SeerProject (
-    "seer-opencv",
-    file("seer/seer-modules/seer-opencv")
-  ) dependsOn( seer_core, seer_video )
-
-  lazy val seer_video = SeerProject (
-    "seer-video",
-    file("seer/seer-modules/seer-video")
-  ) dependsOn seer_gdx
-
-
-  // audio
-  lazy val seer_portaudio = SeerProject (
-    "seer-portaudio",
-    file("seer/seer-modules/seer-portaudio")
-  ) dependsOn seer_core
-
-
-  // dynamic and livecoding related
-  lazy val seer_jruby = SeerProject (
-    "seer-jruby",
-    file("seer/seer-modules/seer-dynamic/seer-jruby")
-  ) dependsOn seer_core
-
-  lazy val seer_luaj = SeerProject (
-    "seer-luaj",
-    file("seer/seer-modules/seer-dynamic/seer-luaj")
-  ) dependsOn seer_core
-
-  lazy val seer_script = SeerProject (
-    "seer-eval",
-    file("seer/seer-modules/seer-dynamic/seer-eval")
-  ) dependsOn( seer_core )
-
-  lazy val seer_repl = SeerProject (
-    "seer-repl",
-    file("seer/seer-modules/seer-dynamic/seer-repl")
-  ) dependsOn seer_core 
-
-
-  // allosphere related
-  lazy val seer_allosphere = SeerProject (
-    id = "seer-allosphere",
-    base = file("seer/seer-modules/seer-allosphere"),
-    settings = BuildSettings.app
-  ) dependsOn ( seer_gdx_desktop_app, seer_luaj, seer_script )
-
+  lazy val examples_bullet = project.in(file("seer/examples/bullet")).
+    settings(app: _*).dependsOn(seer_gdx_desktop_app, seer_bullet)
 }
-
 
