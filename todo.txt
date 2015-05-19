@@ -1,0 +1,15 @@
+
+Seer script?  
+2 files is annoying, web browser, save files... anyone access... remote...
+seer module.. seperated.
+what..
+
+
+tree -- todo
+- general cleanup
+- redesign
+- growth over time..
+- animation.. relook
+- fennel type.. dancing plant
+- grow.. into mesh, use grown mesh as single node, for more complex tree forms, limits animation, but hey
+- 
