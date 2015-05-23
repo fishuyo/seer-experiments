@@ -5,9 +5,15 @@
 // next do camera cross fade test
 // thinking about how to build this into timeline performance event api
 
+// import com.badlogic.gdx.Gdx.{gl20 => gl }
+
+import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL12
+import org.lwjgl.opengl.GL43
 
 object Script extends SeerScript {
 
+  Renderer().environment.backgroundColor.set(0,0,0,1)
   Renderer().environment.alpha = 0.1
   Renderer().environment.blend = false
   Renderer().environment.depth = true
@@ -29,6 +35,10 @@ object Script extends SeerScript {
   // model.material.color = RGBA(0.5,0.5,0.5,0.1)
   model.material.color = RGBA(1,1,1,1)
 
+  val model2 = Model(terrain).translate(0,0.01,0)
+  model2.material = Material.basic
+  model2.material.color = RGBA(0,0,0,1)
+
   val sphere = Sphere()
   sphere.material = Material.specular
   sphere.material.color = RGBA(0.4,0,0.6,0.5)
@@ -41,7 +51,15 @@ object Script extends SeerScript {
       terrain.update
     }
 
+    // terrain.primitive = Triangles
+    GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL)
     model.draw
+
+    GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_LINE)
+    model2.draw
+
+    // terrain.primitive = Lines
+    // model2.draw
     // sphere.draw
   }
 

@@ -25,6 +25,8 @@ object Script extends SeerScript {
   OpenNI.pointCloud = true
   OpenNI.pointCloudDensity = 2
 
+  Renderer().camera = Camera
+
   val skeleton = OpenNI.getSkeleton(1)
 
   val mesh = new Mesh()

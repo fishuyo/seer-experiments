@@ -16,7 +16,8 @@ object WorldScript extends SeerApp {
   GdxAudio.init
   Audio().start
   
-  val live = ScriptLoader("scripts/050315.scala")
+  val live = ScriptLoader("scripts/042115_2.scala")
+  // val live = ScriptLoader("scripts/052015.scala")
 
   override def draw(){}
   override def animate(dt:Float){}
