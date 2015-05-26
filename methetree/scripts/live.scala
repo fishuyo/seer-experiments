@@ -233,6 +233,7 @@ object Script extends SeerScript {
         case 2 => off = Camera.nav.ur * v.x + Camera.nav.uu * v.y
         case 3 => off = Camera.nav.ur * v.x + Camera.nav.uf * v.y
         case 4 => blur.size += v.y * 0.001f
+        case _ => ()
       }
 
       cursor += off * 0.01f
