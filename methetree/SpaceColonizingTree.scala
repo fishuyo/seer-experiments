@@ -15,6 +15,8 @@ class Branch(var parent:Branch, var pos:Vec3, var growDirection:Vec3){
   var growCount = 0
   var age = 0
 
+  val children = ListBuffer[Branch]()
+
   def grow(){
     age += 1
     if(parent != null) parent.grow()
@@ -31,6 +33,8 @@ class Leaf(var pos:Vec3){
   var closest:Branch = null
 }
 
+class AntiLeaf(var pos:Vec3, var vel:Vec3)
+
 
 class Tree {
   var done = false
@@ -40,9 +44,14 @@ class Tree {
   var minDistance = 0.05
   var maxDistance = 0.1 //0.35
   var branchLength = 0.04
+
+  var trimDistance = maxDistance * 4
+  var thresholdVel = 0.01f
+
  
   var root = new Branch(null, Vec3(), Vec3(0,1,0))
   var leaves = ListBuffer[Leaf]()
+  var antiLeaves = ListBuffer[AntiLeaf]()
   // var branches = HashMap[Vec3,Branch]()
 
   var branches = Octree[Branch](Vec3(0),5)
@@ -53,9 +62,13 @@ class Tree {
   // for( i <- (0 until leafCount))
     // leaves += new Leaf(Random.vec3())
 
+  // val actor = System().actorOf( Props(new TreeGrowActor(this))
+
+
   def reset(){
     branches.clear
     leaves.clear
+    root.children.clear
     branches += (root.pos -> root)
     // branches += (Vec3(0,0.1,0) -> new Branch(root, Vec3(0,0.1,0), Vec3(0,1,0)))
   }
@@ -124,7 +137,8 @@ class Tree {
 
           // avgDirection.mag() / branchLength
           val newBranch = new Branch(b, b.pos + avgDirection * branchLength, avgDirection);
-          b.grow()
+          // b.grow()
+          // b.children += newBranch
 
           newBranches += newBranch
           b.reset()
@@ -135,6 +149,8 @@ class Tree {
     var branchAdded = false;
     newBranches.foreach( (b) => {
       // if (!branches.values.contains(b.pos)){
+        b.parent.grow()
+        b.parent.children += b
         branches += (b.pos -> b)
         branchAdded = true
       // }
@@ -142,7 +158,69 @@ class Tree {
     
 
   }
+
+  def trim() = {
+    //process the leaves
+    var i = 0
+    val trimmed = ListBuffer[Branch]()
+
+    antiLeaves.foreach( (leaf) => {
+
+      if( leaf.vel.mag() > thresholdVel ){
+        var direction = Vec3()
+
+        //Find the nearest branch for this leaf
+        var break = false
+        var broken:Branch = null
+        val near = branches.getInSphere(leaf.pos, trimDistance)
+        near.values.foreach( (b) => { 
+          // if(!break){
+          //   direction = leaf.pos - b.pos
+          //   val dist = direction.mag
+          //   direction.normalize
+
+          //   if( dist <= maxDistance && b != root){
+          //     break = true
+          //     broken = b                
+          //   }
+          // }
+          if( b != root){
+            branches.remove(b.pos, b)
+            b.parent.children -= b
+            b.parent = null
+            trimmed += b
+          }
+
+        }) 
+
+        // if(broken != null){
+          // branches.remove(broken.pos, broken)
+          // broken.parent.children -= broken
+          // broken.parent = null
+          // trimmed += broken
+        // }
+      }
+    })
+    trimmed
+  }
 }
+
+// class TreeGrowActor(tree:Tree) extends Actor with ActorLogging {
+//   def receive = {
+//     case "start" => running = true; self ! "update"
+//     case "update" => if(running){ tree.grow(); self ! "update" }
+//     case "stop" => running = false;
+//     case _ => ()
+//   }
+     
+//   override def preStart() = {
+//     log.debug("TreeGrow actor Starting")
+//   }
+//   override def preRestart(reason: Throwable, message: Option[Any]) {
+//     log.error(reason, "TreeGrow actor Restarting due to [{}] when processing [{}]",
+//       reason.getMessage, message.getOrElse(""))
+//   }
+// }
 
 
 

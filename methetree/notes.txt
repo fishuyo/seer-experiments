@@ -14,3 +14,23 @@ human interacting
 human pruning
 human growing
 sound?
+
+
+
+particle wind mapped
+trim models falling away as particles
+tree pick up, roots?
+master script, timeline, scheduling, switching transitions,
+bloom, glow shader?
+point sprites
+terrain?
+
+tree actor 
+rd sillouette
+feedback kinect rgb data
+looper
+
+symetry feedback / rd -- input texture
+tree grow actor
+glow shader / pulse
+sound

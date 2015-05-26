@@ -11,11 +11,6 @@ object Script extends SeerScript {
   var node:RDNode = _
   var colorize:ColorizeNode = _
 
-  OpenNI.initAll()
-  OpenNI.start()
-  // OpenNI.pointCloud = true
-  // OpenNI.pointCloudDensity = 6
-
   var inited = false
   override def draw(){
     for(i <- 0 until 10) node.render

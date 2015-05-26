@@ -33,22 +33,22 @@ object Script extends SeerScript {
   println(KPC.worldToScreen(Vec3(-204.80182, 429.27292, 2208.0)))
 
   val mesh = new Mesh()
-  mesh.primitive = Points
+  mesh.primitive = Lines
   mesh.maxVertices = 640*480
   mesh.maxIndices = 10000
   val model = Model(mesh)
   model.material = Material.basic
-  model.material.color = RGBA(1,1,1,1)
-  // model.material.transparent = true
+  model.material.color = RGBA(0.1,0.1,0.1,0.1)
+  model.material.transparent = true
   var numIndices = 10000
 
   val skeleton = OpenNI.getSkeleton(1)
 
-  val sphere = Sphere().scale(0.1f)
+  val sphere = Sphere().scale(0.01f)
 
   override def init(){
     inited = true
-    Camera.nav.pos.set(0f,0f,-0.8334836f)
+    // Camera.nav.pos.set(0f,0f,-0.8334836f)
   }
 
   override def draw(){
@@ -88,8 +88,8 @@ object Script extends SeerScript {
     try{
       mesh.clear
       mesh.vertices ++= OpenNI.pointMesh.vertices.map( (v) => { val p = v*1000; p.z *= -1; KPC.worldToScreen(p)})
-      // val index = Random.int(mesh.vertices.length)
-      // mesh.indices ++= (0 until numIndices).map( _ => index() )
+      val index = Random.int(mesh.vertices.length)
+      mesh.indices ++= (0 until numIndices).map( _ => index() )
       mesh.update
 
     } catch { case e:Exception => println(e) }

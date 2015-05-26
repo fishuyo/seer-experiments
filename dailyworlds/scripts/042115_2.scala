@@ -51,6 +51,13 @@ object Script extends SeerScript {
       terrain.update
     }
 
+    // GL11.glHint(GL11.GL_POINT_SMOOTH_HINT, GL11.GL_NICEST);
+    // GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
+    // GL11.glHint(GL11.GL_POLYGON_SMOOTH_HINT, GL11.GL_NICEST);
+    // GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
+    // GL11.glEnable(GL11.GL_LINE_SMOOTH);
+    // GL11.glEnable(GL11.GL_POINT_SMOOTH);
+
     // terrain.primitive = Triangles
     GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL)
     model.draw

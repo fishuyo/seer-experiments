@@ -1,4 +1,5 @@
 
+// now with blur 
 
 import com.fishuyo.seer.spacetree._
 
@@ -35,6 +36,8 @@ object Script extends SeerScript {
   val growTime = new PerformanceCounter("grow")
   val drawTime = new PerformanceCounter("draw")
 
+  var blur:BlurNode = _
+  var inited = false
   // import scala.concurrent.duration._
   // Schedule.every(10 seconds){
   //   write = true
@@ -178,6 +181,17 @@ object Script extends SeerScript {
 
 
   override def animate(dt:Float){
+
+    if(!inited){
+      blur = new BlurNode
+      RenderGraph.reset
+      RootNode.outputTo(blur)
+
+      inited = true
+    }
+
+    blur.intensity = math.abs( math.sin(Time()))
+    // blur.size =
     limit += dt
     if( limit > 0.05) limit = 0f
 
@@ -214,8 +228,12 @@ object Script extends SeerScript {
       val v = touch.fingers(0).vel
       // val t = touch.fingers(0).pos
       var off = Vec3()
-      if(touch.count == 2) off = Camera.nav.ur * v.x + Camera.nav.uu * v.y
-      else if(touch.count == 3) off = Camera.nav.ur * v.x + Camera.nav.uf * v.y
+
+      touch.count match {
+        case 2 => off = Camera.nav.ur * v.x + Camera.nav.uu * v.y
+        case 3 => off = Camera.nav.ur * v.x + Camera.nav.uf * v.y
+        case 4 => blur.size += v.y * 0.001f
+      }
 
       cursor += off * 0.01f
 

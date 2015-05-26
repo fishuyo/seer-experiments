@@ -25,6 +25,11 @@ object Script extends SeerScript {
   OpenNI.start()
   OpenNI.pointCloud = true
 
+  Renderer().camera = new OrthographicCamera(1,1)
+  Renderer().camera.nav.pos.z = 2
+
+  KPC.loadCalibration("../methetree/calibration.txt")
+
   val stickman = new LiquidSkeleton(OpenNI.getSkeleton(1))
 
   stickman.skeleton.joints("head") = Vec3(0,1,0)
@@ -107,7 +112,7 @@ object Script extends SeerScript {
   override def draw(){
     FPS.print
 
-    stickman.draw
+    // stickman.draw
 
     Renderer().environment.depth = false
     Renderer().environment.blend = true
@@ -123,18 +128,18 @@ object Script extends SeerScript {
     // leafMesh.draw()
 
     // Renderer().environment.lineWidth = 2f
-    Renderer().environment.alpha = 1f
+    // Renderer().environment.alpha = 1f
 
-    treeMesh.clear()
-    tree.branches.getAll.values.foreach( (b) => {
-      if(b.parent != null){
-        // treeMesh.vertices += b.pos
-        // treeMesh.vertices += b.parent.pos
-        drawBranchRect(treeMesh, b)
-      }
-    })
-    treeMesh.update()
-    treeModel.draw()
+    // treeMesh.clear()
+    // tree.branches.getAll.values.foreach( (b) => {
+    //   if(b.parent != null){
+    //     // treeMesh.vertices += b.pos
+    //     // treeMesh.vertices += b.parent.pos
+    //     drawBranchRect(treeMesh, b)
+    //   }
+    // })
+    // treeMesh.update()
+    // treeModel.draw()
     // mesh.vertices.foreach{ case v =>
     //   sphereModel.pose.pos.set(v)
     //   sphereModel.draw
@@ -171,14 +176,16 @@ object Script extends SeerScript {
     try{
     //   // OpenNI.updatePoints()
       mesh.clear
-      mesh.vertices ++= OpenNI.pointMesh.vertices
+      // mesh.vertices ++= OpenNI.pointMesh.vertices
+      mesh.vertices ++= OpenNI.pointMesh.vertices.map( (v) => { val p = v*1000; p.z *= -1; KPC.worldToScreen(p)})
+
       val index = Random.int(mesh.vertices.length)
       mesh.indices ++= (0 until numIndices).map( _ => index() )
       mesh.update
 
-      tree.leaves.clear
-      tree.leaves ++= OpenNI.pointMesh.vertices.map( new Leaf(_) )
-      if(grow) tree.grow()
+      // tree.leaves.clear
+      // tree.leaves ++= OpenNI.pointMesh.vertices.map( new Leaf(_) )
+      // if(grow) tree.grow()
 
 
     // for( i <- 0 until maxTraces){
