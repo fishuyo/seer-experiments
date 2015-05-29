@@ -345,15 +345,18 @@ object MasterScript extends SeerScript {
   val del2 = new Delay(4000f, 0.98f)
 
   //Poem
-  val birds = new Loop(100)
-  birds.load("../methetree/rainbirds.wav")
-  val poem = new Loop(100)
-  poem.load("../methetree/poem.wav")
+  // val birds = new Loop(100)
+  // birds.load("../methetree/rainbirds.wav")
+  // val poem = new Loop(100)
+  // poem.load("../methetree/poem.wav")
+
+  val poemSound = com.badlogic.gdx.Gdx.audio.newSound(com.badlogic.gdx.Gdx.files.internal("../methetree/poem.wav"));
+  var poemID = 0L
 
   override def audioIO(io:AudioIOBuffer){
 
-    birds.audioIO(io)
-    poem.audioIO(io)
+    // birds.audioIO(io)
+    // poem.audioIO(io)
 
     // while(io()){
     //   val s = noise1() * ramp1()
@@ -377,7 +380,7 @@ object MasterScript extends SeerScript {
 
   Keyboard.bind(" ", () => startPerformance() )
   Keyboard.bind("i", () => startInstallation() )
-  Keyboard.bind("p", () => poem.play(1) )
+  Keyboard.bind("p", () => poemID = poemSound.play())
 
 
   import de.sciss.osc.Message
@@ -400,7 +403,7 @@ object MasterScript extends SeerScript {
     case Message("/1/push4", f:Float) => mode = "points"
     case Message("/2/toggle8", f:Float) => startPerformance()
     case Message("/2/toggle7", f:Float) => startInstallation()
-    case Message("/2/fader3", f:Float) => poem.b.speed = f*100
+    case Message("/2/fader3", f:Float) => poemSound.setPitch(poemID, f*4 - 2)
 
 
     case m:Message => println(m)
