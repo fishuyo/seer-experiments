@@ -13,9 +13,9 @@ import scala.concurrent.duration._
 
 object MasterScript extends SeerScript {
 
-  // OpenNI.initAll()
-  // OpenNI.alignDepthToRGB()
-  // OpenNI.start()
+  OpenNI.initAll()
+  OpenNI.alignDepthToRGB()
+  OpenNI.start()
   OpenNI.pointCloud = true
   OpenNI.pointCloudDensity = 6
 
@@ -191,7 +191,7 @@ object MasterScript extends SeerScript {
       //TODO
     }
     
-    blur.size = 0.01
+    // blur.size = 0.01
     blur.intensity = math.abs( 2*math.sin(Time())) + 0.1
 
     try{
@@ -400,6 +400,7 @@ object MasterScript extends SeerScript {
     case Message("/1/push4", f:Float) => mode = "points"
     case Message("/2/toggle8", f:Float) => startPerformance()
     case Message("/2/toggle7", f:Float) => startInstallation()
+    case Message("/2/fader3", f:Float) => poem.b.speed = f*100
 
 
     case m:Message => println(m)
