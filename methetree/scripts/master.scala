@@ -74,9 +74,11 @@ object MasterScript extends SeerScript {
 
   // Particle System
   Schedule.every(2 seconds){
-    val v = Random.vec3() + Vec3(0,1,0)
-    Schedule.over(1.0 seconds){ case t => Gravity.lerpTo(v,0.01)}
-    // Gravity.set(Random.vec3())
+    if(mode == "particles"){
+      val v = Random.vec3() + Vec3(0,1,0)
+      Schedule.over(1.0 seconds){ case t => Gravity.lerpTo(v,0.01)}
+      // Gravity.set(Random.vec3())
+    } else Gravity.set(0,-.1,0)
   }
 
   val particles = new ParticleEmitter(60000){
@@ -99,6 +101,7 @@ object MasterScript extends SeerScript {
   var inited = false
   var running = false
   var rockspotOn = true
+  var grow = false
 
   // RenderNodes
   var node:RenderNode = _
@@ -233,25 +236,28 @@ object MasterScript extends SeerScript {
         // }
       // }
 
-      tree.leaves.clear
-      tree.leaves ++= m.vertices.map( new Leaf(_) )
-      // println(tree.leaves.size)
+      if(grow){
+        tree.leaves.clear
+        tree.leaves ++= m.vertices.map( new Leaf(_) )
+        // println(tree.leaves.size)
 
-      tree.antiLeaves.clear
-      for( i <- 0 until 4){
-        if(skeletons(i).tracking){
-          tree.antiLeaves ++= (skeletons(i).joints.map { case(n,v) => 
-            val p = v*1000; p.z *= -1; val out = KPC.worldToScreen(p)
-            new AntiLeaf(out, skeletons(i).vel(n)/dt)
-          })
+        tree.antiLeaves.clear
+        for( i <- 0 until 4){
+          if(skeletons(i).tracking){
+            tree.antiLeaves ++= (skeletons(i).joints.map { case(n,v) => 
+              val p = v*1000; p.z *= -1; val out = KPC.worldToScreen(p)
+              new AntiLeaf(out, skeletons(i).vel(n)/dt)
+            })
+          }
         }
       }
 
-
+      var didTrim = false
       if(true){ 
         // tree.grow()
         val trimmed = tree.trim()
         trimmed.foreach { case branch =>
+          didTrim = true
           val mesh = Mesh()
           mesh.primitive = Points
           Draw.branchesRing(mesh,branch)
@@ -275,6 +281,33 @@ object MasterScript extends SeerScript {
           m.mesh.dispose
         }
       }
+
+      // sound
+      if( sound == "wobble"){
+        for( i <- 0 until 4){
+          if(skeletons(i).tracking){
+            var v = skeletons(i).joints("torso")
+            osc.f = new Ramp(osc.f.value, v.y*10f + 80f,10)
+            poemSound.setPitch(poemID, 1 + v.y*0.1)
+
+            v = skeletons(i).joints("head")
+            lfo.a = (v.y+1f) / 200f //new Ramp(lfo.a, v.z)
+
+            impulseAmp = 0f
+            if(didTrim){
+              v = skeletons(i).vel("l_hand")
+              impulseAmp = v.mag 
+              v = skeletons(i).vel("r_hand")
+              if(v.mag > impulseAmp) impulseAmp = v.mag
+            }
+
+            val dist = (skeletons(i).joints("r_hand") - skeletons(i).joints("l_hand")).mag
+            del2.delay = new Ramp(del2.delay.value, dist*4000f, 10)
+            pulse.width = new Ramp(pulse.width.value, dist*10000f, 10)
+          }
+        }
+      }
+      
 
     } catch { case e:Exception => () } //println(e) }
 
@@ -306,6 +339,11 @@ object MasterScript extends SeerScript {
     }
   }
 
+  def startPoem(){
+    Schedule.clear
+    poemID = poemSound.play()
+  }
+
   def startInstallation(){
     Schedule.clear
     composite.blend0 = 1
@@ -325,13 +363,24 @@ object MasterScript extends SeerScript {
   }
 
 
+
+  var sound = "none"
   //Scene 1
-  val noiseTime1 = 10
+  val noiseTime1 = 40
+  var noiseMax1 = 0.6
+  var noiseGain = 1f
   val noise1 = new Noise
-  var ramp1 = new Ramp(0,0.6,44100*noiseTime1)
-  Schedule.after(noiseTime1.seconds){ ramp1 = new Ramp(0.8,0,10000)}
+  var ramp1 = new Ramp(0,0.1,44100*noiseTime1)
+  // Schedule.after(noiseTime1.seconds){ ramp1 = new Ramp(0.8,0,10000)}
+
+  def triggerNoiseRamp(){
+    sound = "noise"
+    ramp1 = new Ramp(0,noiseMax1,44100*noiseTime1)
+    Schedule.after(noiseTime1.seconds){ ramp1 = new Ramp(noiseMax1,0,10000)}
+  }
   
   //Scene 2
+  var wobbleGain = 1f
   val noise = new Noise
   val lfo = new Sine(0.1, 0.025)
   val osc = new Sine(80f)
@@ -352,35 +401,44 @@ object MasterScript extends SeerScript {
 
   val poemSound = com.badlogic.gdx.Gdx.audio.newSound(com.badlogic.gdx.Gdx.files.internal("../methetree/poem.wav"));
   var poemID = 0L
+  val birdSound = com.badlogic.gdx.Gdx.audio.newSound(com.badlogic.gdx.Gdx.files.internal("../methetree/rainbirds.wav"));
+  var birdID = 0L
 
   override def audioIO(io:AudioIOBuffer){
 
     // birds.audioIO(io)
     // poem.audioIO(io)
 
-    // while(io()){
-    //   val s = noise1() * ramp1()
-    //   io.outSet(0)(s)
-    //   io.outSet(1)(s)
-    // }
-    // while(io()){
+    sound match {
+      case "noise" =>
+        while(io()){
+          val s = (noise1() * ramp1()) * noiseGain
+          io.outSet(0)(s)
+          io.outSet(1)(s)
+        }
 
-    //   var s = del(lfo()*noise() + del2(pulse()*impulseAmp) )
-    //   var s2 = lfo2()*osc()
-    //   // s +=
-    //   val p = pan()+0.5f 
-    //   val r = s*p + s2
-    //   val l = s*(1f-p) + s2
+      case "wobble" =>
+        while(io()){
+
+          var s = del(lfo()*noise() + del2(pulse()*impulseAmp) )
+          var s2 = lfo2()*osc()
+          // s +=
+          val p = pan()+0.5f 
+          val r = s*p + s2
+          val l = s*(1f-p) + s2
 
 
-    //   io.outSet(0)(l)
-    //   io.outSet(1)(r)
-    // }
+          io.outSet(0)(l*wobbleGain)
+          io.outSet(1)(r*wobbleGain)
+        }
+      case _ => ()
+    }
+
   }
 
-  Keyboard.bind(" ", () => startPerformance() )
-  Keyboard.bind("i", () => startInstallation() )
-  Keyboard.bind("p", () => poemID = poemSound.play())
+  Keyboard.bind("1", () => startPerformance() )
+  Keyboard.bind("0", () => startInstallation() )
+  Keyboard.bind("2", () => startPoem() )
 
 
   import de.sciss.osc.Message
@@ -401,9 +459,23 @@ object MasterScript extends SeerScript {
     case Message("/1/push2", f:Float) => mode = "spotlight"
     case Message("/1/push3", f:Float) => mode = "particles"
     case Message("/1/push4", f:Float) => mode = "points"
-    case Message("/2/toggle8", f:Float) => startPerformance()
-    case Message("/2/toggle7", f:Float) => startInstallation()
-    case Message("/2/fader3", f:Float) => poemSound.setPitch(poemID, f*4 - 2)
+    case Message("/1/push5", f:Float) => grow = !grow
+    case Message("/2/fader1", f:Float) => noiseGain = f*2
+    case Message("/2/toggle1", f:Float) => sound = "noise"
+    case Message("/2/fader2", f:Float) => wobbleGain = f*2
+    case Message("/2/toggle2", f:Float) => sound = "wobble"
+    case Message("/2/fader3", f:Float) => poemSound.setVolume(poemID, f)
+    case Message("/2/toggle3", f:Float) => poemID = poemSound.play()
+    case Message("/2/fader4", f:Float) => poemSound.setPitch(poemID, f*2)
+    case Message("/2/toggle4", f:Float) => poemSound.stop()
+    case Message("/2/fader5", f:Float) => birdSound.setVolume(poemID, f)
+    case Message("/2/toggle5", f:Float) => birdID = birdSound.play()
+    case Message("/2/fader6", f:Float) => ()
+    case Message("/2/toggle6", f:Float) => birdSound.stop()
+
+    case Message("/3/toggle1", f:Float) => startPerformance()
+    case Message("/3/toggle2", f:Float) => startPoem()
+    case Message("/3/toggle8", f:Float) => startInstallation()
 
 
     case m:Message => println(m)
