@@ -1,5 +1,5 @@
 
-import com.fishuyo.seer.spacetree._
+import com.fishuyo.seer.spacetree2._
 
 import com.fishuyo.seer.openni._
 import com.fishuyo.seer.particle._
@@ -43,9 +43,9 @@ object Script extends SeerScript {
   model.material.transparent = true
   var numIndices = 10000
 
-  var grow = false
+  var grow = true
   val tree = new Tree
-
+// 
   // tree.minDistance = 0.05
   // tree.maxDistance = 0.1 //0.35
   // tree.branchLength = 0.04
@@ -54,15 +54,17 @@ object Script extends SeerScript {
   tree.maxDistance = 0.05 //0.35
   tree.branchLength = 0.007 //0.03
 
-  tree.thresholdVel = 0.05
+  tree.thresholdVel = 3.0 //0.1 //0.05
+  tree.thresholdVelMax = 5.75 //0.2 //0.05
   tree.trimDistance = 0.1
+  tree.sleep = 100
 
   // val leafMesh = Mesh()
   // leafMesh.primitive = Points
   // leafMesh.maxVertices = 100000 //tree.leafCount
 
   val treeMesh = Mesh()
-  treeMesh.primitive = Lines
+  treeMesh.primitive = Points
   treeMesh.maxVertices = 1000000
   val treeModel = Model(treeMesh)
   treeModel.material = Material.basic
@@ -72,14 +74,40 @@ object Script extends SeerScript {
   var write = false
 
   val falling = HashMap[Stick, Model]()
-  Gravity.set(0,-1,0)
+  Gravity.set(0,-.1,0)
 
+  var blur:BlurNode = _
 
   Keyboard.clear
   Keyboard.use
   Keyboard.bind("g", () => { grow = !grow })
   Keyboard.bind("r", () => { tree.reset;  })
   Keyboard.bind("p", () => { write = true })
+
+  var cursor = Vec3()
+  Trackpad.clear
+  Trackpad.connect
+  Trackpad.bind((touch) => {
+    if(touch.count > 0){
+      val v = touch.fingers(0).vel
+      // val t = touch.fingers(0).pos
+      var off = Vec3()
+
+      touch.count match {
+        case 2 => off = Camera.nav.ur * v.x + Camera.nav.uu * v.y
+        case 3 => off = Camera.nav.ur * v.x + Camera.nav.uf * v.y
+        case 4 => blur.size += v.y * 0.001f
+        case _ => ()
+      }
+
+      // cursor += off * 0.01f
+
+      // if(limit == 0f){
+      //   val p = cursor + (Random.vec3() * 0.05f)
+      //   tree.leaves += new Leaf(p)
+      // }
+    }
+  })
 
   import scala.concurrent.duration._
   // Schedule.every(10 seconds){
@@ -88,10 +116,18 @@ object Script extends SeerScript {
  
 
   override def init(){
-    inited = true
+    if(!inited){
+      blur = new BlurNode
+      RenderGraph.reset
+      RootNode.outputTo(blur)
+
+      inited = true
+    }
+
     // Camera.nav.pos.set(0f,0f,-0.8334836f)
     // tree.root.pos.set(0,0,-1)
     tree.root.pos.set(0,0,0)
+    tree.reset()
   }
 
   override def draw(){
@@ -107,12 +143,15 @@ object Script extends SeerScript {
     // Renderer().environment.lineWidth = 2f
     // Renderer().environment.alpha = 1f
 
-    treeMesh.clear()
-    tree.branches.foreach( (p,b) => {
-      Draw.drawBranchRect(treeMesh, b)
-    })
-    // drawTreeRing(treeMesh,tree)
-    treeMesh.update()
+    if(tree.dirty){
+      treeMesh.clear()
+      // tree.branches.foreach( (p,b) => {
+        // Draw.drawBranchRect(treeMesh, b)
+      // })
+      Draw.drawTreeRing(treeMesh,tree)
+      treeMesh.update()
+      tree.dirty = false
+    }
     treeModel.draw()
 
     falling.foreach { case (s,m) =>
@@ -133,9 +172,11 @@ object Script extends SeerScript {
   override def animate(dt:Float){
     if(!inited) init()
     
+    // println(tree.growIteration)
+
     try{
       skeleton.updateJoints()
-      // println(skeleton.joints("head"))
+      println(skeleton.vel("l_hand").mag()/dt)
       mesh.clear
       mesh.vertices ++= OpenNI.pointMesh.vertices.map( (v) => { val p = v*1000; p.z *= -1; KPC.worldToScreen(p)})
 
@@ -149,20 +190,20 @@ object Script extends SeerScript {
       tree.antiLeaves.clear
       tree.antiLeaves ++= (skeleton.joints.map { case(n,v) => 
         val p = v*1000; p.z *= -1; val out = KPC.worldToScreen(p)
-        new AntiLeaf(out, skeleton.vel(n))
+        new AntiLeaf(out, skeleton.vel(n)/dt)
       })
 
       if(grow){ 
-        tree.grow()
+        // tree.grow()
         val trimmed = tree.trim()
         trimmed.foreach { case branch =>
           val mesh = Mesh()
-          mesh.primitive = Lines
-          Draw.branchesRect(mesh,branch)
+          mesh.primitive = Points
+          Draw.branchesRing(mesh,branch)
           val model = Model(mesh)
           model.material = Material.basic
           model.material.color = RGBA(1,1,1,1)
-          val stick = Stick(Vec3(), Random.vec3()*0.01, Quat(), Random.vec3()*0.015)
+          val stick = Stick(Vec3(), Random.vec3()*0.001, Quat(), Random.vec3()*0.015)
           falling += (stick -> model)
         }
       }
@@ -179,6 +220,9 @@ object Script extends SeerScript {
           m.mesh.dispose
         }
       }
+
+      blur.intensity = math.abs( math.sin(Time()))
+
     
     } catch { case e:Exception => println(e) }
   }
@@ -208,40 +252,52 @@ object Draw {
     m.vertices += b.pos + s * t1
     m.vertices += b.pos - s * t1
   }
+
+  def branchesRing(m:Mesh, b:Branch){
+    drawBranchRing(m,b)
+    b.children.foreach( branchesRing(m,_) )
+  }
+
   def drawBranchRing(m:Mesh, b:Branch, r:Float = 0.00001f){
-    var n = 1
-    if(b.age < 50) n = 3
-    else if(b.age < 100) n = 4
-    else if(b.age < 150) n = 5
-    else if(b.age < 400) n = 6
-    else if(b.age < 600) n = 10
-    else n = 20
+    val minThick = 0.001 //0.001
+    val minDist = 0.002 //0.005
 
-    // if(b.age > 50 ) println(n)
+    if(b.parent == null) return
+    // var dir = b.growDirection
+    val dir = b.pos - b.parent.pos
+    val dist = dir.mag()
+    val steps = (dist / minDist).toInt
 
-    for( i <- 0 until n){
-      val phase = i.toFloat / n * 2 * Pi
-      val cos = r*math.cos(phase)
-      val sin = r*math.sin(phase)
-      val vx = Vec3(1,0,0)
-      // val vx = (b.pos - b.parent.pos) cross Vec3(0,0,1) //Vec3(1,0,0)
-      val vz = Vec3(0,0,1)
-      // val vz = (b.pos - b.parent.pos) cross vx          //Vec3(0,0,1)
-      val off1 = vx * cos * b.age + vz * sin * b.age
-      if(off1.mag < 0.005) off1.set(off1.normalized * 0.005)
-      // val off2 = vx * cos * b.parent.age + vz * sin * b.parent.age
-      // val off2 = child.pose.ur()*x*sc.x + child.pose.uu()*y*sc.y
-      m.vertices += b.pos + off1
-      m.normals += off1.normalized
-      // m.vertices += b.parent.pos + off2
-      // m.normals += off2.normalized
+    val q = Quat().getRotationTo(Vec3(0,0,1), dir.normalized)
+    val vx = q.toX
+    val vz = q.toY 
+
+    for(s <- 0 until steps){
+      val t = s.toFloat / steps
+      val age = b.parent.age * (1-t) + b.age * t
+      var thick = math.log(r*age+1)
+      if( thick < minThick ) thick = minThick
+
+      var n = (2f*math.Pi*thick / minDist).toInt
+      // if( n < 4) n = 4
+
+      val pos = b.parent.pos * (1-t) + b.pos * t
+      for( i <- 0 until n){
+        val phase = i.toFloat / n * 2 * Pi
+        val cos = math.cos(phase)
+        val sin = math.sin(phase)
+        val off1 = vx * cos * thick + vz * sin * thick
+        // if(off1.mag < minThick) off1.set(off1.normalized * minThick)
+        m.vertices += pos + off1
+        m.normals += off1.normalized
+      }
     }
   }
 
   def drawTreeRing(m:Mesh, tree:Tree, r:Float = 0.00001f){
     
-    val minThick = 0.001
-    val minDist = 0.005
+    val minThick = 0.001 //0.001
+    val minDist = 0.002 //0.005
 
     tree.branches.foreach( (p,b) => {
 
@@ -262,7 +318,7 @@ object Draw {
           if( thick < minThick ) thick = minThick
 
           var n = (2f*math.Pi*thick / minDist).toInt
-          if( n < 4) n = 4
+          // if( n < 4) n = 4
 
           val pos = b.parent.pos * (1-t) + b.pos * t
           for( i <- 0 until n){

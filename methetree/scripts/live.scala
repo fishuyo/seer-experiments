@@ -1,7 +1,7 @@
 
 // now with blur 
 
-import com.fishuyo.seer.spacetree._
+import com.fishuyo.seer.spacetree2._
 
 import com.badlogic.gdx.utils.PerformanceCounter
 
@@ -47,7 +47,7 @@ object Script extends SeerScript {
     FPS.print
     // println(s"grow: ${growTime.load.latest}")
     // println(s"draw: ${drawTime.load.latest}")
-    println(treeMesh.vertices.length)
+    if( Time() % 5f == 0f ) println(treeMesh.vertices.length)
 
     leafMesh.clear()
     leafMesh.vertices ++= tree.leaves.map( _.pos )
@@ -55,7 +55,7 @@ object Script extends SeerScript {
     leafMesh.draw()
 
     drawTime.start()
-    if(grow){
+    if(tree.dirty){  //grow){
       treeMesh.clear()
       // tree.branches.getAll.values.foreach( (b) => {
       // tree.branches.foreach( (p,b) => {
@@ -66,6 +66,7 @@ object Script extends SeerScript {
       // })
       drawTreeRing(treeMesh,tree, 0.000015)
       treeMesh.update()
+      tree.dirty = false
     }
     treeModel.draw()
     drawTime.stop()
@@ -190,13 +191,13 @@ object Script extends SeerScript {
       inited = true
     }
 
-    blur.intensity = math.abs( math.sin(Time()))
+    blur.intensity = math.abs( math.sin(Time())) + 1f
     // blur.size =
     limit += dt
     if( limit > 0.05) limit = 0f
 
     growTime.start()
-    if(grow) tree.grow()
+    // if(grow) tree.grow()
     growTime.stop()
 
   }

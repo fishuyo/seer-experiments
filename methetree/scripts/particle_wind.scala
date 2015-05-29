@@ -28,7 +28,14 @@ object Script extends SeerScript {
   OpenNI.start()
   OpenNI.pointCloud = true
 
-  OpenNI.pointCloudDensity = 6
+  OpenNI.pointCloudDensity = 4
+
+  Renderer().camera = new OrthographicCamera(1,1)
+  Renderer().camera.nav.pos.z = 2
+  // Renderer().camera = Camera
+
+  KPC.loadCalibration("../methetree/calibration.txt")
+
 
   val mesh = new Mesh()
   mesh.primitive = Lines 
@@ -48,7 +55,7 @@ object Script extends SeerScript {
   // }
   Gravity.set(0,4,0)
   Schedule.every(2 seconds){
-    val v = Random.vec3()
+    val v = Random.vec3() + Vec3(0,1,0)
     Schedule.over(1.0 seconds){ case t => Gravity.lerpTo(v,0.01)}
     // Gravity.set(Random.vec3())
   }
@@ -96,7 +103,10 @@ object Script extends SeerScript {
     if(!inited) init()
 
     try{
-      particles ++= OpenNI.pointMesh.vertices.map(Particle(_, Random.vec3()*0.001))
+      particles ++= OpenNI.pointMesh.vertices.map( (v) => {
+        val p = v*1000; p.z *= -1; val out = KPC.worldToScreen(p)
+        Particle(out, Random.vec3()*0.001)
+      })
       particles.animate(dt)
       // mesh.clear
       // mesh.vertices ++= OpenNI.pointMesh.vertices

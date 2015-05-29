@@ -1,16 +1,16 @@
 
-import com.fishuyo.seer._
-import kodama._
-
-import graphics._
-import dynamic._
-import spatial._
-import io._
-import cv._
-import video._
-import util._
+// import com.fishuyo.seer._
+import com.fishuyo.seer.kodama._
+import com.fishuyo.seer.openni._
+// import graphics._
+// import dynamic._
+// import spatial._
+// import io._
+// import cv._
+// import video._
+// import util._
 // import kinect._
-import actor._
+// import actor._
 
 // import trees._
 // import particle._
@@ -32,8 +32,6 @@ import concurrent.duration._
 
 // import openni._
  
-Shader.bg.set(0,0,0,1)
-Camera.nav.pos.set(0,1,4)
 
 ///
 /// Trees
@@ -42,7 +40,7 @@ var idx = 0
 
 class ATree(b:Int=8) extends Tree {
   var visible = 0
-  var (mx,my,mz,rx,ry,rz) = (0.f,0.f,0.f,0.f,0.f,0.f)
+  var (mx,my,mz,rx,ry,rz) = (0f,0f,0f,0f,0f,0f)
   setAnimate(true)
   setReseed(true)
   setDepth(b)
@@ -114,7 +112,7 @@ object SaveTheTrees {
 
 class SkeletonBuffer(val size:Int) extends Animatable {
   val buffer = new Array[Skeleton](size)
-  var rpos = 0.f
+  var rpos = 0f
   var len = 0
   var wpos = 0
   var frame = new Skeleton(0)
@@ -127,7 +125,7 @@ class SkeletonBuffer(val size:Int) extends Animatable {
   def clear(){ rpos = 0; wpos = 0; len = 0 }
   def +=(s:Skeleton){
     if(recording){
-      val skel = new QuadMan(0)
+      val skel = new Skeleton(0) //QuadMan(0)
       skel.tracking = true
       skel.joints = s.joints.clone
       buffer(wpos) = skel
@@ -138,14 +136,14 @@ class SkeletonBuffer(val size:Int) extends Animatable {
   }
   override def draw(){
     if(playing){
-      frame.draw
+      // frame.draw
       // println(frame.joints("head"))
     }
   }
   override def animate(dt:Float){
     if(playing && len > 0){
       frame = buffer(rpos.toInt)
-      frame.animate(dt)
+      // frame.animate(dt)
       rpos += dt
       if( rpos >= len) rpos = 0
     }
@@ -177,7 +175,7 @@ object Script extends SeerScript {
   // println(OpenNI.depthMD.getFullXRes)
 
   val skeletons = ArrayBuffer[Skeleton]()
-  for( i <- 0 until 4) skeletons += new QuadMan(i)
+  for( i <- 0 until 4) skeletons += new Skeleton(i) //QuadMan(i)
 
   val buffers = ArrayBuffer[SkeletonBuffer]()
   for( i <- 0 until 4) buffers += new SkeletonBuffer(500)
@@ -186,91 +184,48 @@ object Script extends SeerScript {
   override def preUnload(){
     recv.clear()
     recv.disconnect()
-    SceneGraph.root.outputs.clear
-    ScreenNode.inputs.clear
+    // SceneGraph.root.outputs.clear
+    // ScreenNode.inputs.clear
   }
 
   override def onLoad(){
   }
 
-  def loadShaders(){
-    Shader.load("s1", File("shaders/basic.vert"), File("shaders/skel.frag")).monitor
-    Shader.load("t", File("shaders/basic.vert"), File("shaders/tree.frag")).monitor
-  }
+  // def loadShaders(){
+  //   Shader.load("s1", File("shaders/basic.vert"), File("shaders/skel.frag")).monitor
+  //   Shader.load("t", File("shaders/basic.vert"), File("shaders/tree.frag")).monitor
+  // }
 
   var inited = false
   var feedback:RenderNode = null
   override def init(){
-    loadShaders()
-    TreeNode.model.shader = "t"
+    // loadShaders()
+    // TreeNode.model.shader = "t"
     inited = true
 
-    SceneGraph.root.outputs.clear
-    ScreenNode.inputs.clear
+    // SceneGraph.root.outputs.clear
+    // ScreenNode.inputs.clear
 
-    feedback = new RenderNode
-    feedback.shader = "composite"
-    feedback.clear = false
-    feedback.scene.push(Plane())
-    SceneGraph.root.outputTo(feedback)
-    feedback.outputTo(feedback)
-    feedback.outputTo(ScreenNode)
+    // feedback = new RenderNode
+    // feedback.shader = "composite"
+    // feedback.clear = false
+    // feedback.scene.push(Plane())
+    // SceneGraph.root.outputTo(feedback)
+    // feedback.outputTo(feedback)
+    // feedback.outputTo(ScreenNode)
   }
 
   override def draw(){
     FPS.print
 
-    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE)
-
-    Shader("s1")
-    var sh = Shader.shader.get
-    sh.uniforms("time") = t
-
-    Scene.alpha = 0.9
-    SceneGraph.root.depth = false
-    skeletons.foreach( (s) => {
-      if(s.droppedFrames < 5){
-        sh.uniforms("color") = s.color
-        s.draw
-      }
-    })
-
-    buffers.foreach( (s) => {
-      sh.uniforms("color") = RGB(0,1,1)
-      s.draw
-    })
 
     trees.foreach(_.draw)
   }
 
-  var t = 0.f
+  var t = 0f
   override def animate(dt:Float){
 
     if(!inited) init()
-
-    // val z = skeletons(0).joints("torso").z
-    // if( z > maxz){ maxz = z; println(maxz)}
-    // beta = map(z,0.f,2.7f, 0.85, 0.9999f)
-
-    Shader("composite")
-    val fb = Shader.shader.get
-    fb.uniforms("u_blend0") = 0.25
-    fb.uniforms("u_blend1") = 0.88
-
-    t += dt
-
-    buffers.zipWithIndex.foreach{ case(b,i) =>
-      if(skeletons(i).droppedFrames < 5 /*&& skeletons(i).vel("torso").mag > 0.*/) b += skeletons(i)
-      b.animate(0.5f)
-    }
-
-    skeletons.foreach((s) => {
-      s.animate(dt)
-      val w = s.vel("l_hand")
-      trees.foreach{ case tree =>
-        tree.root.applyForce( w*10.f )
-      }
-    })
 
     trees.foreach(_.animate(dt))
 
@@ -300,37 +255,40 @@ object Script extends SeerScript {
 
   Trackpad.clear
   Trackpad.connect
-  Trackpad.bind( (i,f) => {
+  Trackpad.bind( (touch) => {
 
     val t = trees(idx)
     t.visible = 1
 
-    i match {
+    val p = touch.pos 
+    val v = touch.vel
+
+    touch.count match {
       case 1 =>
         val ur = Vec3(1,0,0) //Camera.nav.ur()
         val uf = Vec3(0,0,1) //Camera.nav.uf()
 
         trees.foreach{ case t =>
-          t.root.applyForce( ur*(f(0)-0.5) * 2.0*f(4) )
-          t.root.applyForce( uf*(f(1)-0.5) * -2.0*f(4) )
+          t.root.applyForce( ur*(p.x-0.5) * 2.0*touch.size )
+          t.root.applyForce( uf*(p.y-0.5) * -2.0*touch.size )
         }
       case 2 =>
-        t.mx += f(2)*0.05  
-        t.my += f(3)*0.05
+        t.mx += v.x*0.05  
+        t.my += v.y*0.05
       case 3 =>
-        t.ry += f(2)*0.05  
-        t.mz += f(3)*0.01
+        t.ry += v.x*0.05  
+        t.mz += v.y*0.01
         if (t.mz < 0.08) t.mz = 0.08
         if (t.mz > 3.0) t.mz = 3.0 
       case 4 =>
-        t.rz += f(3)*0.05
-        t.rx += f(2)*0.05
+        t.rz += v.y*0.05
+        t.rx += v.x*0.05
       case _ => ()
     }
 
     t.root.pose.pos.set(t.mx,t.my,0)
 
-    if(i > 2){
+    if(touch.count > 2){
       t.update(t.mz,t.rx,t.ry,t.rz) 
 
     }

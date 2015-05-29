@@ -39,7 +39,7 @@ object SeerModulesBuild extends Build {
     settings(common: _*).dependsOn(seer_core)
 
   lazy val seer_script = project.in(file("seer/seer-modules/seer-script")).
-    settings(common: _*).dependsOn(seer_core)
+    settings(common: _*).dependsOn(seer_gdx)
 
   lazy val seer_repl = project.in(file("seer/seer-modules/seer-repl")).
     settings(common: _*).dependsOn(seer_core)

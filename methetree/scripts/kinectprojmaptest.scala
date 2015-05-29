@@ -19,10 +19,12 @@ object Script extends SeerScript {
 
   var inited = false
 
+  var blur:BlurNode = _
+
   OpenNI.initAll()
   OpenNI.start()
   OpenNI.pointCloud = true
-  OpenNI.pointCloudDensity = 6
+  OpenNI.pointCloudDensity = 2
 
   Renderer().camera = new OrthographicCamera(1,1)
   Renderer().camera.nav.pos.z = 2
@@ -44,9 +46,12 @@ object Script extends SeerScript {
 
   val skeleton = OpenNI.getSkeleton(1)
 
-  val sphere = Sphere().scale(0.01f)
+  val sphere = Sphere().scale(0.2,0.7,1) //0.01f)
 
   override def init(){
+    blur = new BlurNode
+    RenderGraph.reset
+    RootNode.outputTo(blur)
     inited = true
     // Camera.nav.pos.set(0f,0f,-0.8334836f)
   }
@@ -68,7 +73,7 @@ object Script extends SeerScript {
     if(!inited) init()
 
     if(skeleton.tracking) skeleton.updateJoints()
-    val newhead = skeleton.joints("head")
+    val newhead = skeleton.joints("torso")
     if(newhead.x != head.x){
       println(newhead)
       head = Vec3(newhead)
@@ -76,9 +81,12 @@ object Script extends SeerScript {
       val p = newhead *1000
       p.z *= -1
       val out = KPC.worldToScreen(p)
-      sphere.pose.pos.set(out)
+      sphere.pose.pos.lerpTo(out,0.1f)
       println("screen: " + out)
     }
+
+    blur.size = 0.01
+    blur.intensity = math.abs( 2*math.sin(Time()))+1
 
 // [ -204.80182, 429.27292, 2208.0 ]
 // [ 665.1891, 501.93344, 0.0 ]

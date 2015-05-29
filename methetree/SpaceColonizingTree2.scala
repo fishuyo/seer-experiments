@@ -1,9 +1,13 @@
 
 package com.fishuyo.seer
-package spacetree
+package spacetree2
 
 import spatial._
 import graphics._
+import actor._
+
+import akka.actor._
+import akka.event.Logging
 
 import collection.mutable.ListBuffer
 import collection.mutable.HashMap
@@ -36,43 +40,52 @@ class Leaf(var pos:Vec3){
 class AntiLeaf(var pos:Vec3, var vel:Vec3)
 
 
-class Tree {
-  var done = false
-  var pos = Vec3()
 
-  // var leafCount = 400
+
+class Tree {
+
   var minDistance = 0.05
   var maxDistance = 0.1 //0.35
   var branchLength = 0.04
 
   var trimDistance = maxDistance * 4
-  var thresholdVel = 0.1f
+  var thresholdVel = 0.09f
   var thresholdVelMax = 0.2f
 
- 
   var root = new Branch(null, Vec3(), Vec3(0,1,0))
+
   var leaves = ListBuffer[Leaf]()
   var antiLeaves = ListBuffer[AntiLeaf]()
-  // var branches = HashMap[Vec3,Branch]()
 
-  var branches = Octree[Branch](Vec3(0),5)
+  val currentViewBranches = ListBuffer[Branch]() // branches to render
+  val growthHistory = ListBuffer[List[Branch]]() // branches added at each growth step
+
+  val branches = Octree[Branch](Vec3(0),5) // current simulation set of branches
+
+  var growIteration = 0
+  var viewIteration = 0
+  var dirty = false
+  var sleep = 300
 
   branches += (root.pos -> root)
-  // branches += (Vec3(0,0.1,0) -> new Branch(root, Vec3(0,0.1,0), Vec3(0,1,0)))
 
-  // for( i <- (0 until leafCount))
-    // leaves += new Leaf(Random.vec3())
+  val actor = System().actorOf( Props(new TreeGrowActor(this)))
 
-  // val actor = System().actorOf( Props(new TreeGrowActor(this))
-
+  actor ! "start"
 
   def reset(){
     branches.clear
+    currentViewBranches.clear
+    growthHistory.clear
     leaves.clear
+    antiLeaves.clear
     root.children.clear
     branches += (root.pos -> root)
-    // branches += (Vec3(0,0.1,0) -> new Branch(root, Vec3(0,0.1,0), Vec3(0,1,0)))
+    growIteration = 0
+    viewIteration = 0
+    dirty = true
   }
+
 
   def grow(){
 
@@ -80,14 +93,16 @@ class Tree {
         return
     }
 
+    try{
     //process the leaves
     var i = 0
-    while( i < leaves.size){
+    // while( i < leaves.size){
+    leaves.foreach{ case leaf => 
 
       var leafRemoved = false
 
       var direction = Vec3()
-      val leaf = leaves(i)
+      // val leaf = leaves(i)
       leaf.closest = null
 
       //Find the nearest branch for this leaf
@@ -129,7 +144,7 @@ class Tree {
 
     //Generate the new branches
     val newBranches = HashSet[Branch]()
-    // branches.getAll().values.foreach( (b) => {
+
     branches.foreach( (p,b) => {
       if (b.growCount > 0){    //if at least one leaf is affecting the branch
       
@@ -145,6 +160,7 @@ class Tree {
           b.reset()
       }
     })
+    if(newBranches.size > 0) growIteration += 1
 
     //Add the new branches to the tree
     var branchAdded = false;
@@ -156,7 +172,8 @@ class Tree {
         branchAdded = true
       // }
     })
-    
+
+    } catch { case e:Exception => println(e.getMessage)}
 
   }
 
@@ -174,7 +191,8 @@ class Tree {
     antiLeaves.foreach( (leaf) => {
 
       val mag = leaf.vel.mag()
-      if( mag > thresholdVel && mag < thresholdVelMax){
+
+      if( mag > thresholdVel && mag < thresholdVelMax ){
         var direction = Vec3()
 
         //Find the nearest branch for this leaf
@@ -198,6 +216,7 @@ class Tree {
             b.parent.children -= b
             b.parent = null
             trimmed += b
+            dirty = true
           }
 
         }) 
@@ -214,22 +233,23 @@ class Tree {
   }
 }
 
-// class TreeGrowActor(tree:Tree) extends Actor with ActorLogging {
-//   def receive = {
-//     case "start" => running = true; self ! "update"
-//     case "update" => if(running){ tree.grow(); self ! "update" }
-//     case "stop" => running = false;
-//     case _ => ()
-//   }
+class TreeGrowActor(tree:Tree) extends Actor with ActorLogging {
+  var running = false
+  def receive = {
+    case "start" => running = true; self ! "update"
+    case "update" => if(running){ tree.grow(); tree.dirty = true; Thread.sleep(tree.sleep); self ! "update" }
+    case "stop" => running = false;
+    case _ => ()
+  }
      
-//   override def preStart() = {
-//     log.debug("TreeGrow actor Starting")
-//   }
-//   override def preRestart(reason: Throwable, message: Option[Any]) {
-//     log.error(reason, "TreeGrow actor Restarting due to [{}] when processing [{}]",
-//       reason.getMessage, message.getOrElse(""))
-//   }
-// }
+  override def preStart() = {
+    log.debug("TreeGrow actor Starting")
+  }
+  override def preRestart(reason: Throwable, message: Option[Any]) {
+    log.error(reason, "TreeGrow actor Restarting due to [{}] when processing [{}]",
+      reason.getMessage, message.getOrElse(""))
+  }
+}
 
 
 
