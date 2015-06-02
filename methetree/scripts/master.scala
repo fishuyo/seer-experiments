@@ -47,10 +47,10 @@ object MasterScript extends SeerScript {
   spotlights += Sphere().scale(0.15,0.25,1) 
   spotlights += Sphere().scale(0.15,0.25,1) 
   spotlights += Sphere().scale(0.15,0.25,1) 
-  val rockspot = Sphere().scale(0.11,0.2,1) 
-  rockspot.pose.pos.set(-0.22,-0.5,0)
+  val rockspot = Sphere().scale(0.14,0.2,1) 
+  rockspot.pose.pos.set(-0.08,-0.5,0)
   rockspot.material = Material.basic 
-  rockspot.material.color = RGB(0,0,0)
+  rockspot.material.color = RGB(1,1,1)
 
   // tree
   val tree = new Tree
@@ -73,9 +73,9 @@ object MasterScript extends SeerScript {
   Gravity.set(0,-.1,0)
 
   // Particle System
-  Schedule.every(2 seconds){
+  Schedule.every(4 seconds){
     if(mode == "particles"){
-      val v = Random.vec3() + Vec3(0,1,0)
+      val v = Random.vec3() //+ Vec3(0,1,0)
       Schedule.over(1.0 seconds){ case t => Gravity.lerpTo(v,0.01)}
       // Gravity.set(Random.vec3())
     } else Gravity.set(0,-.1,0)
@@ -194,7 +194,7 @@ object MasterScript extends SeerScript {
       //TODO
     }
     
-    // blur.size = 0.01
+    blur.size = 0.005
     blur.intensity = math.abs( 2*math.sin(Time())) + 0.1
 
     try{
@@ -287,8 +287,8 @@ object MasterScript extends SeerScript {
         for( i <- 0 until 4){
           if(skeletons(i).tracking){
             var v = skeletons(i).joints("torso")
-            osc.f = new Ramp(osc.f.value, v.y*10f + 80f,10)
-            poemSound.setPitch(poemID, 1 + v.y*0.1)
+            osc.f = new Ramp(osc.f.value, v.y*40f + 90f,10)
+            poemSound.setPitch(poemID, 0.8 + v.y*0.2)
 
             v = skeletons(i).joints("head")
             lfo.a = (v.y+1f) / 200f //new Ramp(lfo.a, v.z)
@@ -317,21 +317,61 @@ object MasterScript extends SeerScript {
     Schedule.clear
     composite.blend0 = 0
     composite.blend1 = 0
+    composite.blend2 = 0
     mode = "noise"
+    triggerNoiseRamp()
     rockspotOn = false
-    Schedule.over( 3 seconds){ case t => 
+    rockspot.material.color.set(0,0,0)
+    Schedule.over( 6 seconds){ case t => //fade noise
       composite.blend0 = t
       composite.blend1 = 0
       composite.blend2 = t
-      if( t == 1f) Schedule.after(3 seconds){
+      if( t == 1f) Schedule.after(34 seconds){ //sustain noise to cut
         composite.blend2 = 0
         mode = "points"
-        Schedule.after(3 seconds){
-          Schedule.over(15 seconds){ case t =>
+
+        // Cut fall
+        Schedule.after(7 seconds){ // wait before spot on
+          Schedule.over(10 seconds){ case t => // spot fade in
             rockspotOn = true
             rockspot.material.color.set(t,t,t)
-            if( t == 1f) Schedule.after(10 seconds){
-              mode = "spotlight"
+            //rock alive
+            if( t == 1f){ // after fade, cue birds
+              triggerBirds()
+              Schedule.after(25 seconds){ //rock roll, spotlight
+                mode = "spotlight"
+                Schedule.over(20 seconds){ case t => // rock fade out
+                  val v = 1f-t
+                  rockspot.material.color.set(v,v,v)
+                  if(t==1f) rockspotOn = false
+                }
+
+                Schedule.after(120 seconds){
+                  mode = "particles"
+                  sound = "wobble"
+                  wobbleGain = 0f
+                  Schedule.over(10 seconds){ case t =>
+                    birdSound.setVolume(birdID, 0.3*(1-t))
+                    wobbleGain = t*0.5
+                  }
+
+                  //Walking to audience
+                  Schedule.after( 120 seconds){
+                    // fade in RD
+                    Schedule.over(20 seconds){ case t =>
+                      composite.blend1 = t
+                    }
+                    Schedule.after( 90 seconds){
+                      mode = "points"
+                      Schedule.after(15 seconds){
+                        Schedule.over(10 seconds){ case t =>
+                          wobbleGain = (1-t)*0.5
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -342,6 +382,14 @@ object MasterScript extends SeerScript {
   def startPoem(){
     Schedule.clear
     poemID = poemSound.play()
+    mode = "points"
+    composite.blend1 = 0f
+    composite.blend2 = 0f 
+
+    Schedule.after( 17 seconds){
+      grow = true
+      // Schedule.after
+    }
   }
 
   def startInstallation(){
@@ -367,7 +415,7 @@ object MasterScript extends SeerScript {
   var sound = "none"
   //Scene 1
   val noiseTime1 = 40
-  var noiseMax1 = 0.6
+  var noiseMax1 = 0.3
   var noiseGain = 1f
   val noise1 = new Noise
   var ramp1 = new Ramp(0,0.1,44100*noiseTime1)
@@ -378,9 +426,14 @@ object MasterScript extends SeerScript {
     ramp1 = new Ramp(0,noiseMax1,44100*noiseTime1)
     Schedule.after(noiseTime1.seconds){ ramp1 = new Ramp(noiseMax1,0,10000)}
   }
+  def triggerBirds(){
+    sound = "birds"
+    birdID = birdSound.loop(0.0)
+    Schedule.over(10 seconds){ case t => birdSound.setVolume(birdID, t*0.3f) }
+  }
   
   //Scene 2
-  var wobbleGain = 1f
+  var wobbleGain = 0.5f
   val noise = new Noise
   val lfo = new Sine(0.1, 0.025)
   val osc = new Sine(80f)
@@ -468,8 +521,8 @@ object MasterScript extends SeerScript {
     case Message("/2/toggle3", f:Float) => poemID = poemSound.play()
     case Message("/2/fader4", f:Float) => poemSound.setPitch(poemID, f*2)
     case Message("/2/toggle4", f:Float) => poemSound.stop()
-    case Message("/2/fader5", f:Float) => birdSound.setVolume(poemID, f)
-    case Message("/2/toggle5", f:Float) => birdID = birdSound.play()
+    case Message("/2/fader5", f:Float) => birdSound.setVolume(birdID, f)
+    case Message("/2/toggle5", f:Float) => birdID = birdSound.play(0.1)
     case Message("/2/fader6", f:Float) => ()
     case Message("/2/toggle6", f:Float) => birdSound.stop()
 
