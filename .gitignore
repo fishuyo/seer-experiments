@@ -10,5 +10,6 @@ project/plugins/project
 res/
 assets/
 
+*.wav
 *.obj
 *.xyz

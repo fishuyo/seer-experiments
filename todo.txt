@@ -1,4 +1,18 @@
 
+// Thesis
+- scheduler.. events
+- transfer functions
+- video?
+- body filters, movement filters,
+- opencv, body filters
+- fields
+- performance methaphors, body metaphors
+- actors
+
+
+
+
+
 Seer script?  
 2 files is annoying, web browser, save files... anyone access... remote...
 seer module.. seperated.
