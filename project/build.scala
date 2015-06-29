@@ -43,6 +43,9 @@ object ExperimentsBuild extends Build {
   lazy val dailyworlds = project.settings(app: _*).
     dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_openni)
 
+  lazy val box2d = project.settings(app: _*).
+    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_box2d)
+
 }
 
 
