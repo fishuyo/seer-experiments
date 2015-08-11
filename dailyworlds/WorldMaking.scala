@@ -19,7 +19,11 @@ object WorldScript extends SeerApp {
   // val live = ScriptLoader("scripts/042115_2.scala")
   // val live = ScriptLoader("scripts/052015.scala")
   // val live = ScriptLoader("scripts/052415.scala")
-  val live = ScriptLoader("scripts/060215.scala")
+  // val live = ScriptLoader("scripts/052615.scala")
+  // val live = ScriptLoader("scripts/060215.scala")
+  // val live = ScriptLoader("scripts/052315.scala")
+  // val live = ScriptLoader("scripts/050315.scala")
+  val live = ScriptLoader("scripts/073015.scala")
 
   override def draw(){}
   override def animate(dt:Float){}
