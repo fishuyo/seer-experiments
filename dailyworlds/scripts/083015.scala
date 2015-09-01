@@ -3,6 +3,7 @@
 
 import com.fishuyo.seer.openni._
 import com.fishuyo.seer.cv._
+import com.fishuyo.seer.particle._
 
 import org.opencv.core._
 import org.opencv.highgui._
@@ -16,6 +17,7 @@ import collection.mutable.ListBuffer
 import com.twitter.chill.KryoInjection
 import scala.util.Success
 
+import scala.concurrent.duration._
 
 
 object Script extends SeerScript {
@@ -26,7 +28,7 @@ object Script extends SeerScript {
   OpenNI.alignDepthToRGB()
   OpenNI.start()
   OpenNI.pointCloud = true
-  OpenNI.pointCloudDensity = 4
+  OpenNI.pointCloudDensity = 8
   OpenNI.makeDebugImage = true
 
   OpenCV.loadLibrary()
@@ -42,6 +44,34 @@ object Script extends SeerScript {
   model.material = Material.basic
   model.material.color = RGB(1)
 
+  Gravity.set(0,4,0)
+  Schedule.every(2 seconds){
+    val v = Random.vec3()
+    Schedule.over(1.0 seconds){ case t => Gravity.lerpTo(v,0.01)}
+    Gravity.set(Random.vec3())
+  }
+
+  val particles = new ParticleEmitter(80000){
+    // val s = Model(Sphere.generateMesh(0.01,4))
+    val mesh = Mesh()
+    mesh.primitive = Points
+    mesh.maxVertices = maxParticles
+    val model = Model(mesh)
+    model.material = Material.basic
+    model.material.color = RGB(0.9)
+
+    override def draw(){
+      mesh.clear
+      mesh.vertices ++= particles.map( _.position )
+      mesh.update
+      model.draw
+      // particles.foreach( (p) => {
+        // s.pose.pos = p.position 
+        // s.draw
+      // })
+    }
+  }
+
 
   override def init(){
     inited = true
@@ -53,6 +83,7 @@ object Script extends SeerScript {
     model.draw
     // quad1.draw
     // quad2.draw
+    particles.draw
   }
 
   override def animate(dt:Float){
@@ -66,6 +97,9 @@ object Script extends SeerScript {
         users.head.points ++= OpenNI.pointMesh.vertices
       }
 
+      // particles ++= OpenNI.pointMesh.vertices.map(Particle(_, Random.vec3()*0.001))
+
+
       // copy users
       val in = ListBuffer[User]()
       in ++= users.map(User(_))
@@ -76,10 +110,14 @@ object Script extends SeerScript {
       mesh.clear
       out.foreach{ case user =>
         // mesh.vertices ++= user.skeleton.joints.values
-        mesh.vertices ++= user.points
+        particles ++= user.points.map(Particle(_, Random.vec3()*0.001))
+
+        // mesh.vertices ++= user.points
       }
       mesh.update
 
+      particles.animate(dt)
+      
     } catch { case e:Exception => println(e) }
 
 
@@ -111,7 +149,7 @@ object Script extends SeerScript {
 
   Keyboard.bind("p", () => com.fishuyo.seer.video.ScreenCapture.toggleRecord )
   // Keyboard.bind("o", () => loop.writeToFile("",1.0,"mpeg4") )
-  Keyboard.bind("o", () => saveLoop(loop.frames,"out.loop"))
+  Keyboard.bind("o", () => saveLoop(loop.frames))
   Keyboard.bind("u", () => {
     val frames = loadLoop("out.loop")
     if(frames.isDefined) loop.frames = frames.get
@@ -150,9 +188,12 @@ def loadLoop(filename:String) = {
   }
   user
 }
-def saveLoop(u:ArrayBuffer[ListBuffer[User]], filename:String){
+def saveLoop(u:ArrayBuffer[ListBuffer[User]], filename:String=""){
 // def saveLoop(u:User, filename:String){
   import java.io._
+  val form = new java.text.SimpleDateFormat("yyyy-MM-dd-HH.mm.ss")
+  val filename = form.format(new java.util.Date()) + ".bin" 
+
   val bytes = KryoInjection(u)
   val bos = new BufferedOutputStream(new FileOutputStream(filename))
   Stream.continually(bos.write(bytes))
