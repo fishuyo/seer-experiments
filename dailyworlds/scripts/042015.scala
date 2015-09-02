@@ -24,15 +24,15 @@ object Script extends SeerScript {
     time += dt 
     Renderer().shader.uniforms("time") = time
     if(doBeat){
-      Renderer().shader.uniforms("color") = Vec3(1,1,1) //HSV2RGB(HSV(util.Random.float(),1,1))
+      Renderer().shader.uniforms("color") = HSV2RGB(HSV(util.Random.float(),1,1))
       doBeat = false
     }
     
-    count = (follow.value * 100).toInt + 1//util.Random.int(1,6)() + 1
+    // count = (follow.value * 100).toInt + 1//util.Random.int(1,6)() + 1
 
 
-    model.rotate(rot.x, rot.y, 0)
-    model.scale.set( follow.value * 1f + 0.5f ) 
+    // model.rotate(rot.x, rot.y, 0)
+    model.scale.set( follow.value * 10f + 0.5f ) 
     // if( beat.value > 0f) println("!")
     // println(follow.value)
   }

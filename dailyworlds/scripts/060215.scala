@@ -86,7 +86,7 @@ class ParticleNode extends BackBufferNode {
     void main(){
       vec3 pos = texture2D(u_texture0, v_uv).xyz;
       vec3 vel = texture2D(u_texture1, v_uv).xyz;
-      pos += vel * dt; 
+      pos += (vel) * dt; 
       // pos.x += (2.0*snoise(vec2(pos.x,pos.y))-1.0) * dt; 
       // pos.y += (2.0*snoise(vec2(pos.x,pos.y))-1.0) * dt; 
       // pos.z += snoise(vec2(pos.x,pos.y)) * dt; 

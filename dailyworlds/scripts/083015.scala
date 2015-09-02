@@ -33,7 +33,10 @@ object Script extends SeerScript {
 
   OpenCV.loadLibrary()
 
-  val loop = new UserLoop
+  val loops = (0 until 4).map( (i) => new UserLoop())
+  var l = 0
+  var mode = 0
+
   val out = ListBuffer[User]()
 
   val mesh = new Mesh()
@@ -44,14 +47,8 @@ object Script extends SeerScript {
   model.material = Material.basic
   model.material.color = RGB(1)
 
-  Gravity.set(0,4,0)
-  Schedule.every(2 seconds){
-    val v = Random.vec3()
-    Schedule.over(1.0 seconds){ case t => Gravity.lerpTo(v,0.01)}
-    Gravity.set(Random.vec3())
-  }
-
-  val particles = new ParticleEmitter(80000){
+  var asParticles = true
+  val particles = new ParticleEmitter(60000){
     // val s = Model(Sphere.generateMesh(0.01,4))
     val mesh = Mesh()
     mesh.primitive = Points
@@ -71,7 +68,12 @@ object Script extends SeerScript {
       // })
     }
   }
-
+  Gravity.set(0,4,0)
+  Schedule.every(4 seconds){
+    val v = Random.vec3()
+    Schedule.over(1.0 seconds){ case t => Gravity.lerpTo(v,0.01)}
+    Gravity.set(Random.vec3())
+  }
 
   override def init(){
     inited = true
@@ -80,10 +82,11 @@ object Script extends SeerScript {
   override def draw(){
     FPS.print
 
-    model.draw
     // quad1.draw
     // quad2.draw
-    particles.draw
+    if(asParticles) particles.draw
+    else model.draw
+
   }
 
   override def animate(dt:Float){
@@ -91,9 +94,9 @@ object Script extends SeerScript {
 
     val users = OpenNI.users.values.filter(_.tracking)
     users.foreach( _.skeleton.updateJoints )
+    users.foreach( _.points.clear )
     try{
       if(!users.isEmpty){
-        users.head.points.clear
         users.head.points ++= OpenNI.pointMesh.vertices
       }
 
@@ -105,19 +108,18 @@ object Script extends SeerScript {
       in ++= users.map(User(_))
 
       out.clear
-      loop.io(in, out)
+      loops(l).io(in, out)
 
       mesh.clear
       out.foreach{ case user =>
         // mesh.vertices ++= user.skeleton.joints.values
-        particles ++= user.points.map(Particle(_, Random.vec3()*0.001))
-
-        // mesh.vertices ++= user.points
+        if(asParticles) particles ++= user.points.map(Particle(_, Random.vec3()*0.001))
+        else mesh.vertices ++= user.points
       }
-      mesh.update
 
-      particles.animate(dt)
-      
+      if(asParticles) particles.animate(dt)
+      else mesh.update
+
     } catch { case e:Exception => println(e) }
 
 
@@ -135,24 +137,34 @@ object Script extends SeerScript {
   Keyboard.clear
   Keyboard.use
   var speed = 1f
-  Keyboard.bind("r", () => loop.toggleRecord() )
-  Keyboard.bind("t", () => loop.togglePlay() )
-  Keyboard.bind("x", () => loop.stack() )
-  Keyboard.bind("c", () => loop.clear() )
-  Keyboard.bind("\t", () => loop.reverse() )
-  Keyboard.bind("j", () => loop.setAlphaBeta(1f,.99f) )
+  Keyboard.bind("r", () => loops(l).toggleRecord() )
+  Keyboard.bind("t", () => loops(l).togglePlay() )
+  Keyboard.bind("x", () => loops(l).stack() )
+  Keyboard.bind("c", () => loops(l).clear() )
+  Keyboard.bind("\t", () => loops(l).reverse() )
+  // Keyboard.bind("j", () => loops(l).setAlphaBeta(1f,.99f) )
   // Keyboard.bind("b", () => bg = !bg )
   // Keyboard.bind("v", () => subtract = !subtract )
   // Keyboard.bind("z", () => depth = !depth )
-  Keyboard.bind("i", () => {speed *=2; loop.setSpeed(speed) })
-  Keyboard.bind("k", () => {speed /=2; loop.setSpeed(speed) })
+  Keyboard.bind("i", () => {speed *=2; loops(l).setSpeed(speed) })
+  Keyboard.bind("k", () => {speed /=2; loops(l).setSpeed(speed) })
+  Keyboard.bind("=", () => {l += 1; if(l > 3) l = 3 })
+  Keyboard.bind("-", () => {l -= 1; if(l < 0) l = 0 })
+  Keyboard.bind("m", () => { 
+    mode += 1; if( mode > 1) mode = 0
+    mode match {
+      case 0 => asParticles = false; OpenNI.pointCloudDensity = 4
+      case 1 => asParticles = true; particles.clear; OpenNI.pointCloudDensity = 8
+      case _ => ()
+    }
+  })
 
   Keyboard.bind("p", () => com.fishuyo.seer.video.ScreenCapture.toggleRecord )
-  // Keyboard.bind("o", () => loop.writeToFile("",1.0,"mpeg4") )
-  Keyboard.bind("o", () => saveLoop(loop.frames))
+  // Keyboard.bind("o", () => loops(l).writeToFile("",1.0,"mpeg4") )
+  Keyboard.bind("o", () => saveLoop(loops(l).frames))
   Keyboard.bind("u", () => {
     val frames = loadLoop("out.loop")
-    if(frames.isDefined) loop.frames = frames.get
+    if(frames.isDefined) loops(l).frames = frames.get
   })
 
 
@@ -166,7 +178,7 @@ object Script extends SeerScript {
     // loop.setAlphaBeta(decay, speed)
     println(s"$x $y")
     // loop.setAlpha(x)
-    loop.setAlphaBeta(x,y)
+    loops(l).setAlphaBeta(x,y)
   })
 
 }
