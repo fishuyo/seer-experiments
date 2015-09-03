@@ -58,7 +58,7 @@ object VideoTest extends SeerScript {
     fbnode.outputTo(new ScreenNode())
 
     RenderGraph.addNode(node2)
-    // node2.renderer.clear = false
+    node2.renderer.clear = false
 
     // RootNode.outputTo(blur)
 

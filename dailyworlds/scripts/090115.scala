@@ -25,6 +25,8 @@ object Script extends SeerScript {
 
   var inited = false
 
+  var fbnode:FeedbackNode = _
+
   OpenNI.initAll()
   OpenNI.alignDepthToRGB()
   OpenNI.start()
@@ -119,11 +121,12 @@ object Script extends SeerScript {
   val (tx,ty) = (129,129)
   val terrain = Plane.generateMesh(50f,50f,tx,ty,Quat.up)
   fractalize(terrain,tx,ty)
-  val ground = Model(terrain).translate(0,-1,0)
+  val cen = terrain.vertices(terrain.vertices.length/2)
+  val ground = Model(terrain).translate(0,-cen.y-1,0)
   ground.material = Material.specular
   ground.material.color = RGBA(0.6,0,0.8,0.3)
 
-  val groundLines = Model(terrain).translate(0,-1+0.01,0)
+  val groundLines = Model(terrain).translate(0,-cen.y-1+0.01,0)
   groundLines.material = Material.specular
   groundLines.material.color = RGBA(0,0.6,0.8,0.3)
 
@@ -134,11 +137,19 @@ object Script extends SeerScript {
 
   override def init(){
     inited = true
-    Renderer().environment.depth = false
-    Renderer().environment.blend = true
-    Renderer().environment.blendFunc(SrcAlpha,OneMinusSrcAlpha)
+
+    // Renderer().environment.depth = false
+    // Renderer().environment.blend = true
+    // Renderer().environment.blendFunc(SrcAlpha,OneMinusSrcAlpha)
     // Renderer().environment.blendFunc(SrcAlpha,DstAlpha)
     // Renderer().environment.blendFunc(One,One)
+
+    // fbnode = new FeedbackNode(0.995,0.005)
+    fbnode = new FeedbackNode(0.9,0.1)
+    RenderGraph.reset
+    // RenderGraph.addNode(node)
+    RootNode.outputTo(fbnode)
+    fbnode.outputTo(new ScreenNode())
 
     loopTexture = Texture(loopImage)
     loopQuad.material = Material.basic
@@ -156,6 +167,7 @@ object Script extends SeerScript {
       ground.draw
       GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_LINE)
       groundLines.draw
+      GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL)
     }
 
     if(videoLoop){
@@ -307,11 +319,13 @@ object Script extends SeerScript {
   Keyboard.bind("=", () => {l += 1; if(l > 3) l = 3 })
   Keyboard.bind("-", () => {l -= 1; if(l < 0) l = 0 })
   Keyboard.bind("m", () => { 
-    mode += 1; if( mode > 2) mode = 0
+    mode += 1; if( mode > 3) mode = 0
     mode match {
-      case 0 => videoLoop = true;
-      case 1 => videoLoop = false; asParticles = false; OpenNI.pointCloudDensity = 4
-      case 2 => videoLoop = false; asParticles = true; particles.clear; OpenNI.pointCloudDensity = 4
+      case 0 => videoLoop = true; fbnode.blend0 = 0.9; fbnode.blend1 = 0.1;
+
+      case 1 => videoLoop = false; asParticles = false; OpenNI.pointCloudDensity = 4; fbnode.blend0 = 0.98; fbnode.blend1 = 0.1;
+      case 2 => videoLoop = false; asParticles = true; particles.clear; OpenNI.pointCloudDensity = 4; fbnode.blend0 = 0.9; fbnode.blend1 = 0.1;
+      case 3 => videoLoop = false; asParticles = true; fbnode.blend0 = 0.9999; fbnode.blend1 = 0.033;
       case _ => ()
     }
   })
@@ -337,6 +351,9 @@ object Script extends SeerScript {
     // loop.setAlpha(x)
     loops(l).setAlphaBeta(x,y)
     vloop.setAlphaBeta(x,y)
+    fbnode.blend0 = y
+    fbnode.blend1 = x
+
   })
 
   val follow = new EnvFollow(5000)
