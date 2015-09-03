@@ -29,7 +29,7 @@ object Script extends SeerScript {
   OpenNI.alignDepthToRGB()
   OpenNI.start()
   OpenNI.pointCloud = true
-  OpenNI.pointCloudDensity = 2
+  OpenNI.pointCloudDensity = 4
   OpenNI.makeDebugImage = true
 
   OpenCV.loadLibrary()
@@ -87,21 +87,25 @@ object Script extends SeerScript {
 
   val n = 20
   val field = new VecField3D(n,Vec3(0),5f)
-  var updateField = true
+  var updateField = false
   particles.field = Some(field)
-  particles.fieldAsForce = true
-  for( z<-(0 until n); y<-(0 until n); x<-(0 until n)){
-    val cen = field.centerOfBin(x,y,z).normalize
-    // field.set(x,y,z,Vec3(0))
-    // field.set(x,y,z, Random.vec3()*0.01)
-    field.set(x,y,z, Random.vec3()*4)
-    //field.set(x,y,z, cen * -.1f)
-    //field.set(x,y,z, Vec3(x,y,z).normalize * .1f)
-    //field.set(x,y,z, Vec3( -cen.z + -cen.x*.1f, -cen.y, cen.x ).normalize * .1f )
-    //field.set(x,y,z, Vec3( math.sin(cen.x*3.14f), 0, math.cos(cen.z*3.14f) ).normalize * .1f)  
-    //field.set(x,y,z, Vec3( cen.x, y/10.f, cen.z).normalize * .1f )
-    //field.set(x,y,z, Vec3(0,.1f,0) )
-    //field.set(x,y,z, (Vec3(0,1,0)-cen).normalize * .1f )
+  particles.fieldAsForce = false
+  randomizeField()
+
+  def randomizeField(){
+    for( z<-(0 until n); y<-(0 until n); x<-(0 until n)){
+      val cen = field.centerOfBin(x,y,z).normalize
+      // field.set(x,y,z,Vec3(0))
+      if(particles.fieldAsForce) field.set(x,y,z, Random.vec3()*4)
+      else field.set(x,y,z, Random.vec3()*0.01)
+      //field.set(x,y,z, cen * -.1f)
+      //field.set(x,y,z, Vec3(x,y,z).normalize * .1f)
+      //field.set(x,y,z, Vec3( -cen.z + -cen.x*.1f, -cen.y, cen.x ).normalize * .1f )
+      //field.set(x,y,z, Vec3( math.sin(cen.x*3.14f), 0, math.cos(cen.z*3.14f) ).normalize * .1f)  
+      //field.set(x,y,z, Vec3( cen.x, y/10.f, cen.z).normalize * .1f )
+      //field.set(x,y,z, Vec3(0,.1f,0) )
+      //field.set(x,y,z, (Vec3(0,1,0)-cen).normalize * .1f )
+    }
   }
 
   Gravity.set(0,0,0)
@@ -123,6 +127,11 @@ object Script extends SeerScript {
   groundLines.material = Material.specular
   groundLines.material.color = RGBA(0,0.6,0.8,0.3)
 
+  var autocam = false 
+  var maxCamSpeed = 1f
+  var orbitPeriod = 1f
+  var focalPoint = Vec3()
+
   override def init(){
     inited = true
     Renderer().environment.depth = false
@@ -142,16 +151,16 @@ object Script extends SeerScript {
   override def draw(){
     FPS.print
 
+    if(drawTerrain){
+      GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL)
+      ground.draw
+      GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_LINE)
+      groundLines.draw
+    }
+
     if(videoLoop){
       loopQuad.draw
     } else {
-      if(drawTerrain){
-        GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL)
-        ground.draw
-        GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_LINE)
-        groundLines.draw
-      }
-
       if(asParticles) particles.draw
       else model.draw
     }
@@ -202,15 +211,19 @@ object Script extends SeerScript {
       out.release
     } else {
       if(audioReactive){
-        val bg = follow.value
+        val bg = follow.value * 2
         Renderer().environment.backgroundColor.set(bg,bg,bg)
         if(doBeat){
           if(drawTerrain){
-            val r = Random.float(-.01,.01)
-            terrain.vertices.foreach{ case v => v.y += math.abs(v.x)*r()}
+            val r = Random.float(-.1,.1)
+            // terrain.vertices.foreach{ case v => v.y += math.abs(v.x)*r()}
+            terrain.vertices.foreach{ case v => v.y += bg*r()}
             terrain.recalculateNormals
             terrain.update
           }
+          val c = HSV2RGBA(HSV(util.Random.float(),1,1)); c.a = 0.7
+          particles.model.material.color = c
+          model.material.color = c
           doBeat = false
         }
       }
@@ -222,7 +235,8 @@ object Script extends SeerScript {
         // set field to skeleton velocity
         if(updateField){
           for( j <- Joint.strings){
-            field(user.skeleton.joints(j)) = user.skeleton.vel(j)*4
+            if(particles.fieldAsForce) field(user.skeleton.joints(j)) = user.skeleton.vel(j)*4
+            else field(user.skeleton.joints(j)) = user.skeleton.vel(j)*0.01
           }      
         }
         user.points.clear 
@@ -281,6 +295,13 @@ object Script extends SeerScript {
   Keyboard.bind("b", () => bg = !bg )
   Keyboard.bind("v", () => subtract = !subtract )
   Keyboard.bind("z", () => depth = !depth )
+  Keyboard.bind("y", () => autocam = !autocam )
+  Keyboard.bind("g", () => drawTerrain = !drawTerrain )
+  Keyboard.bind(".", () => {audioReactive = !audioReactive; drawTerrain = !drawTerrain; particles.model.material.color.set(1,1,1,0.7); model.material.color.set(1,1,1,1) })
+  Keyboard.bind(",", () => {
+    particles.fieldAsForce = !particles.fieldAsForce
+    randomizeField()
+  })
   Keyboard.bind("i", () => {speed *=2; if(videoLoop) vloop.setSpeed(speed) else loops(l).setSpeed(speed) })
   Keyboard.bind("k", () => {speed /=2; if(videoLoop) vloop.setSpeed(speed) else loops(l).setSpeed(speed) })
   Keyboard.bind("=", () => {l += 1; if(l > 3) l = 3 })
@@ -289,8 +310,8 @@ object Script extends SeerScript {
     mode += 1; if( mode > 2) mode = 0
     mode match {
       case 0 => videoLoop = true;
-      case 1 => videoLoop = false; asParticles = false; OpenNI.pointCloudDensity = 2
-      case 2 => videoLoop = false; asParticles = true; particles.clear; OpenNI.pointCloudDensity = 8
+      case 1 => videoLoop = false; asParticles = false; OpenNI.pointCloudDensity = 4
+      case 2 => videoLoop = false; asParticles = true; particles.clear; OpenNI.pointCloudDensity = 4
       case _ => ()
     }
   })
@@ -299,7 +320,7 @@ object Script extends SeerScript {
   // Keyboard.bind("o", () => loops(l).writeToFile("",1.0,"mpeg4") )
   Keyboard.bind("o", () => saveLoop(loops(l).frames))
   Keyboard.bind("u", () => {
-    val frames = loadLoop("out.loop")
+    val frames = loadLoop("2015-08-31-22.53.37.bin")
     if(frames.isDefined) loops(l).frames = frames.get
   })
 
