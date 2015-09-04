@@ -26,6 +26,8 @@ object Script extends SeerScript {
   var inited = false
 
   var fbnode:FeedbackNode = _
+  var noisenode:NoiseNode = _
+  var composite:CompositeNode = _
 
   OpenNI.initAll()
   OpenNI.alignDepthToRGB()
@@ -37,7 +39,7 @@ object Script extends SeerScript {
   OpenCV.loadLibrary()
 
   // video looper
-  var videoLoop = true
+  var videoLoop = false
   val vloop = new VideoLoop()
   val loopQuad = Plane().scale(1,-480f/640f,1).translate(0,0,0)
   var loopTexture:Texture = _
@@ -122,11 +124,11 @@ object Script extends SeerScript {
   val terrain = Plane.generateMesh(50f,50f,tx,ty,Quat.up)
   fractalize(terrain,tx,ty)
   val cen = terrain.vertices(terrain.vertices.length/2)
-  val ground = Model(terrain).translate(0,-cen.y-1,0)
+  val ground = Model(terrain).translate(0,-cen.y-2,0)
   ground.material = Material.specular
   ground.material.color = RGBA(0.6,0,0.8,0.3)
 
-  val groundLines = Model(terrain).translate(0,-cen.y-1+0.01,0)
+  val groundLines = Model(terrain).translate(0,-cen.y-2+0.01,0)
   groundLines.material = Material.specular
   groundLines.material.color = RGBA(0,0.6,0.8,0.3)
 
@@ -146,9 +148,16 @@ object Script extends SeerScript {
 
     // fbnode = new FeedbackNode(0.995,0.005)
     fbnode = new FeedbackNode(0.9,0.1)
+    composite = new CompositeNode(1,0)
+    noisenode = new NoiseNode 
+
     RenderGraph.reset
-    // RenderGraph.addNode(node)
-    RootNode.outputTo(fbnode)
+    RenderGraph.addNode(noisenode)
+    
+    RootNode.outputTo(composite)
+    noisenode.outputTo(composite)
+
+    composite.outputTo(fbnode)
     fbnode.outputTo(new ScreenNode())
 
     loopTexture = Texture(loopImage)
@@ -157,6 +166,10 @@ object Script extends SeerScript {
 
     terrain.recalculateNormals
     terrain.update
+
+    val frames = loadLoop("emily_fela_dance.bin")
+    if(frames.isDefined) loops(3).frames = frames.get
+
   }
 
   override def draw(){
@@ -181,6 +194,7 @@ object Script extends SeerScript {
 
   override def animate(dt:Float){
     if(!inited) init()
+    noisenode.time += dt
 
     if(videoLoop){
       if(depth){
@@ -223,8 +237,8 @@ object Script extends SeerScript {
       out.release
     } else {
       if(audioReactive){
-        val bg = follow.value * 2
-        Renderer().environment.backgroundColor.set(bg,bg,bg)
+        val bg = follow.value //* 2
+        // Renderer().environment.backgroundColor.set(bg,bg,bg)
         if(doBeat){
           if(drawTerrain){
             val r = Random.float(-.1,.1)
@@ -309,7 +323,7 @@ object Script extends SeerScript {
   Keyboard.bind("z", () => depth = !depth )
   Keyboard.bind("y", () => autocam = !autocam )
   Keyboard.bind("g", () => drawTerrain = !drawTerrain )
-  Keyboard.bind(".", () => {audioReactive = !audioReactive; drawTerrain = !drawTerrain; particles.model.material.color.set(1,1,1,0.7); model.material.color.set(1,1,1,1) })
+  Keyboard.bind(".", () => {toggleHeavyFeedback()}) //audioReactive = !audioReactive; drawTerrain = !drawTerrain; particles.model.material.color.set(1,1,1,0.7); model.material.color.set(1,1,1,1) })
   Keyboard.bind(",", () => {
     particles.fieldAsForce = !particles.fieldAsForce
     randomizeField()
@@ -318,25 +332,54 @@ object Script extends SeerScript {
   Keyboard.bind("k", () => {speed /=2; if(videoLoop) vloop.setSpeed(speed) else loops(l).setSpeed(speed) })
   Keyboard.bind("=", () => {l += 1; if(l > 3) l = 3 })
   Keyboard.bind("-", () => {l -= 1; if(l < 0) l = 0 })
-  Keyboard.bind("m", () => { 
-    mode += 1; if( mode > 3) mode = 0
-    mode match {
-      case 0 => videoLoop = true; fbnode.blend0 = 0.9; fbnode.blend1 = 0.1;
 
-      case 1 => videoLoop = false; asParticles = false; OpenNI.pointCloudDensity = 4; fbnode.blend0 = 0.98; fbnode.blend1 = 0.1;
-      case 2 => videoLoop = false; asParticles = true; particles.clear; OpenNI.pointCloudDensity = 4; fbnode.blend0 = 0.9; fbnode.blend1 = 0.1;
-      case 3 => videoLoop = false; asParticles = true; fbnode.blend0 = 0.9999; fbnode.blend1 = 0.033;
-      case _ => ()
-    }
-  })
-
-  Keyboard.bind("p", () => com.fishuyo.seer.video.ScreenCapture.toggleRecord )
+  // Keyboard.bind("p", () => com.fishuyo.seer.video.ScreenCapture.toggleRecord )
   // Keyboard.bind("o", () => loops(l).writeToFile("",1.0,"mpeg4") )
   Keyboard.bind("o", () => saveLoop(loops(l).frames))
   Keyboard.bind("u", () => {
     val frames = loadLoop("2015-08-31-22.53.37.bin")
     if(frames.isDefined) loops(l).frames = frames.get
   })
+
+  Keyboard.bind("m", () => { mode += 1; if( mode > 3) mode = 0; changeMode() })
+  Keyboard.bind("n", () => { mode -= 1; if( mode < 0) mode = 1; changeMode() })
+  var (db0,db1) = (0.9,0.1)
+  def changeMode(){
+    mode match {
+      // case 0 => videoLoop = true; fbnode.blend0 = 0.9; fbnode.blend1 = 0.1;
+      case 0 => videoLoop = false; asParticles = false; OpenNI.pointCloudDensity = 4; db0=0.98; db1=0.1; fbnode.setBlend(db0,db1); composite.setBlend(1,0)
+      case 1 => asParticles = true; particles.clear; OpenNI.pointCloudDensity = 4; db0=0.9; db1=0.1; fbnode.setBlend(db0,db1); composite.setBlend(1,0); setTerrainMode(false)
+      case 2 => asParticles = true; setTerrainMode(true); composite.setBlend(1,0); db0=0.98; db1=0.1; fbnode.setBlend(db0,db1);
+      // case 2 => videoLoop = false; asParticles = true; fbnode.blend0 = 0.9999; fbnode.blend1 = 0.033;
+      case 3 => 
+        Schedule.over(10 seconds){ case t =>
+          composite.setBlend(1.0f-t,t)
+          if(t < 0.5) fbnode.setBlend(1.0f-0.5*t,t*0.5)
+          else fbnode.setBlend(1.0f-t,t*0.5)
+          if(t == 1){
+            setTerrainMode(false);
+            Schedule.over(30 seconds){ case t =>
+              fbnode.setBlend(t,0.5)
+            }
+          }
+        }
+      case _ => ()
+    }    
+  }
+
+  var heavyFeedback = false
+  def toggleHeavyFeedback(){
+    heavyFeedback = !heavyFeedback
+    if(heavyFeedback) fbnode.setBlend(0.9999, 0.033)
+    else fbnode.setBlend(db0,db1)
+  }
+
+  def setTerrainMode(enable:Boolean){
+    drawTerrain = enable
+    audioReactive = enable
+    particles.model.material.color.set(1,1,1,0.7)
+    model.material.color.set(1,1,1,1)
+  }
 
 
   Mouse.clear()
