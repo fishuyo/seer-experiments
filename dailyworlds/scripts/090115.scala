@@ -29,12 +29,12 @@ object Script extends SeerScript {
   var noisenode:NoiseNode = _
   var composite:CompositeNode = _
 
-  OpenNI.initAll()
-  OpenNI.alignDepthToRGB()
-  OpenNI.start()
-  OpenNI.pointCloud = true
-  OpenNI.pointCloudDensity = 4
-  OpenNI.makeDebugImage = true
+  // OpenNI.initAll()
+  // OpenNI.alignDepthToRGB()
+  // OpenNI.start()
+  // OpenNI.pointCloud = true
+  // OpenNI.pointCloudDensity = 4
+  // OpenNI.makeDebugImage = true
 
   OpenCV.loadLibrary()
 

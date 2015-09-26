@@ -14,6 +14,7 @@ import java.nio.ByteBuffer
 object VideoTest extends SeerScript {
 
   var videos = collection.mutable.ListBuffer[VideoTexture]()
+  var smodel = collection.mutable.ListBuffer[Model]()
   // var video2:VideoTexture = _
 
   var initd = false
@@ -29,8 +30,8 @@ object VideoTest extends SeerScript {
 
   var quad:Model = _
 
-  OpenNI.initAll()
-  OpenNI.start()
+  // OpenNI.initAll()
+  // OpenNI.start()
   // OpenNI.pointCloud = true
   // OpenNI.pointCloudDensity = 4
   KPC.loadCalibration("calibration.txt")
@@ -52,6 +53,10 @@ object VideoTest extends SeerScript {
     // fbnode = new FeedbackNode(0,1)
     // fbnode.mode = 0
 
+    RootNode.renderer.camera = new OrthographicCamera(2.0f*(1280.0f/800.0f),2)
+    RootNode.renderer.camera.nav.pos.z = 2
+
+
     RenderGraph.reset
     RenderGraph.addNode(node)
     node.outputTo(fbnode)
@@ -68,6 +73,10 @@ object VideoTest extends SeerScript {
     videos(1).setRate(0.1)
     // video2.setRate(0.5)
 
+    smodel += Sphere().scale(0.1)
+    smodel += Sphere().scale(0.1)
+    smodel += Sphere().scale(0.1)
+
     tex1 = Texture(640,480)
     tex2 = Texture(640,480)
     tex3 = Texture(640,480)
@@ -83,6 +92,8 @@ object VideoTest extends SeerScript {
     // node2.renderer.scene.push(quad)
 
     videos.foreach( node.renderer.scene.push(_) )
+    // smodel.foreach( node.renderer.scene.push(_) )
+    // smodel.foreach( node2.renderer.scene.push(_) )
     videos.foreach( node2.renderer.scene.push(_) )
     // node.renderer.scene.push(video2)
 
@@ -122,8 +133,9 @@ object VideoTest extends SeerScript {
         val p = pos * 1000
         p.z *= -1
         val out = KPC.worldToScreen(p)
-        // videos(i).quad.pose.pos.lerpTo(out,0.1f)
-        videos(i).quad.pose.pos.lerpTo(pos,0.1f)
+        videos(i).quad.pose.pos.lerpTo(out,0.1f)
+        smodel(i).pose.pos.lerpTo(out,0.1f)
+       // videos(i).quad.pose.pos.lerpTo(pos,0.1f)
         // println(pos)
         // println(out)
       }
@@ -228,7 +240,8 @@ class MaskBlendNode extends RenderNode {
 
       // vec4 mask = texture2D(u_texture1, v_uv);
       gl_FragColor = texture2D(u_texture0, v_uv); 
-      gl_FragColor.a *= (1.0-length(v_pos)); // * 0.5; 
+      gl_FragColor.a *= (1.0-length(v_pos)); // * 0.5;
+      // gl_FragColor = vec4(1,1,1,1); 
     }
     """
   )

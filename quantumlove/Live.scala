@@ -17,7 +17,10 @@ object WorldScript extends SeerApp {
   Audio().start
   
   // val live = ScriptLoader("scripts/UserMask.scala")
-  val live = ScriptLoader("scripts/videomasktest.scala")
+  // val live = ScriptLoader("scripts/videomasktest.scala")
+  // val live = ScriptLoader("scripts/091515.scala")
+  // val live = ScriptLoader("scripts/CalibTest.scala")
+  val live = ScriptLoader("scripts/master.scala")
 
   override def draw(){}
   override def animate(dt:Float){}

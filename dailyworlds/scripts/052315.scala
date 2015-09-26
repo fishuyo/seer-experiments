@@ -60,6 +60,7 @@ object Script extends SeerScript {
 
 class RDNode extends BackBufferNode {
 
+  renderer.resize = false
   renderer.shader = Shader.load(
     """
     attribute vec4 a_position;
