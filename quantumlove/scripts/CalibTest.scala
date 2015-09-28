@@ -59,9 +59,9 @@ object CalibTest extends SeerScript {
         val pos3 = skeletons(i).joints("torso") * 1000
         pos3.z *= -1
         val cam = RootNode.renderer.camera
-        val out = KPC.worldToScreen(pos) * Vec3(cam.viewportWidth*0.9, cam.viewportHeight,0) + Vec3(0.15,-0.05,0)
-        val out2 = KPC.worldToScreen(pos2) * Vec3(cam.viewportWidth*0.9, cam.viewportHeight,0) + Vec3(0.15,-0.05,0)
-        val out3 = KPC.worldToScreen(pos3) * Vec3(cam.viewportWidth*0.9, cam.viewportHeight,0) + Vec3(0.15,-0.05,0)
+        val out = KPC.worldToScreen(pos) * Vec3(cam.viewportWidth, cam.viewportHeight,0) + Vec3(0.0,-0.1,0)
+        val out2 = KPC.worldToScreen(pos2) * Vec3(cam.viewportWidth, cam.viewportHeight,0) + Vec3(0.0,-0.1,0)
+        val out3 = KPC.worldToScreen(pos3) * Vec3(cam.viewportWidth, cam.viewportHeight,0) + Vec3(0.0,-0.1,0)
         smodel(3*i).pose.pos.set(out) //lerpTo(out,0.1f)
         smodel(3*i+1).pose.pos.set(out2) //lerpTo(out2,0.1f)
         smodel(3*i+2).pose.pos.set(out3)
