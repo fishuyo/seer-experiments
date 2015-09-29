@@ -23,7 +23,8 @@ import com.badlogic.gdx.Gdx
 
 object Master extends SeerApp {
 
-  val music = Gdx.audio.newMusic(Gdx.files.absolute("/Users/fishuyo/Desktop/silverthreads.mp3"));
+  val music1 = Gdx.audio.newMusic(Gdx.files.absolute("/Users/fishuyo/Desktop/silverthreads-01.mp3"));
+  val music2 = Gdx.audio.newMusic(Gdx.files.absolute("/Users/fishuyo/Desktop/silverthreads-02.mp3"));
 
   var rawaccel1 = Vec3()
   var accel1 = Vec3()
@@ -48,16 +49,34 @@ object Master extends SeerApp {
   files += "grass2" -> "/Users/fishuyo/Desktop/quantumlove/grass2.mov"
   files += "onboat" -> "/Users/fishuyo/Desktop/quantumlove/onboat.mov"
   files += "ontrain" -> "/Users/fishuyo/Desktop/quantumlove/ontrain.mov"
-  files += "stream" -> "/Users/fishuyo/Desktop/quantumlove/stream.mov"
+  // files += "stream" -> "/Users/fishuyo/Desktop/quantumlove/stream.mov"
   files += "subway" -> "/Users/fishuyo/Desktop/quantumlove/subway.mov"
   files += "tidepool" -> "/Users/fishuyo/Desktop/quantumlove/tidepool.mov"
-  files += "underwater" -> "/Users/fishuyo/Desktop/quantumlove/underwater.mp4"
-  files += "underwater2" -> "/Users/fishuyo/Desktop/quantumlove/underwater2.mp4"
-  files += "underwater3" -> "/Users/fishuyo/Desktop/quantumlove/underwater3.mp4"
+  files += "underwater" -> "/Users/fishuyo/Desktop/quantumlove/underwater.mov"
+  files += "underwater2" -> "/Users/fishuyo/Desktop/quantumlove/underwater2.mov"
+  files += "underwater3" -> "/Users/fishuyo/Desktop/quantumlove/underwater3.mov"
   files += "water" -> "/Users/fishuyo/Desktop/quantumlove/water.mov"
   files += "wave" -> "/Users/fishuyo/Desktop/quantumlove/waves.mov"
 
   val randomVideo = Random.oneOf(files.keys.toArray: _*)
+
+  var pairs = Array(
+    "underwater3" -> "underwater",
+    "grass2" -> "water",
+    "cave" -> "ontrain",
+    "ontrain" -> "wave",
+    "subway" -> "train",
+    "onboat" -> "subway",
+    "underwater" -> "ontrain",
+    "ontrain" -> "underwater3",
+    "city" -> "ontrain",
+    "cave" -> "drivetrees",
+    "grass" -> "drivetrees",
+    // "grass" -> "wave",
+    "drivetrees" -> "underwater2",
+    "underwater3" -> "subway"
+  )
+  val randomPair = Random.oneOf(pairs: _*)
 
   // var videos = ListBuffer[VideoTexture]()
   var video1:VideoTexture = _
@@ -106,7 +125,7 @@ object Master extends SeerApp {
     video1 = new VideoTexture(files(name))
     if(wall) OSC.send("/left/load", files(name))
     video1.setRate(0.3)
-    video1.setVolume(0.5)
+    video1.setVolume(0.0)
     video1.setAudioChannel(0)
     if(v != null) v.dispose 
   }
@@ -115,22 +134,27 @@ object Master extends SeerApp {
     video2 = new VideoTexture(files(name))
     if(wall) OSC.send("/right/load", files(name))
     video2.setRate(0.3)
-    video2.setVolume(0.5)
+    video2.setVolume(0.0)
     video2.setAudioChannel(1)
     if(v != null) v.dispose 
   }
   def loadVideo(name:String, wall:Boolean = false){
     var v = video1
+    var v2 = video2
     video1 = new VideoTexture(files(name))
+    video2 = new VideoTexture(files(name))
     node.div = 1.1f
     if(wall){
       OSC.send("/left/load", files(name))
       OSC.send("/right/load", files(name))
     }
     video1.setRate(0.3)
-    video1.setVolume(0.5)
+    video2.setRate(0.4)
+    video1.setVolume(0.0)
+    video2.setVolume(0.0)
     video1.setAudioChannel(0)
     if(v != null) v.dispose 
+    if(v2 != null) v2.dispose 
   }
 
   // override def onUnload(){
@@ -171,7 +195,7 @@ object Master extends SeerApp {
     // println(s"env: ${env1.value}")
     beat1(rawaccel1.mag)
     if(beat1.value > 0f){ 
-      println("beat!!!!!!!!!!!!!!!!!!")
+      // println("beat!!!!!!!!!!!!!!!!!!")
 
     }
 
@@ -207,6 +231,7 @@ object Master extends SeerApp {
   OSC.listen(8082)
   val oscPhones = new OSCSend
   oscPhones.connect("localhost", 8083)
+  // OSC.connect("192.168.0.4", 8008)
   OSC.connect("169.231.113.146", 8008)
   OSC.bindp {
     case Message("/gyro1", roll:Float, pitch:Float, yaw:Float) => gyro1.set(pitch,yaw,roll)
@@ -214,17 +239,42 @@ object Master extends SeerApp {
     case Message("/accel1", x:Float, y:Float, z:Float) => rawaccel1.set(x,y,z)
     case Message("/accel2", x:Float, y:Float, z:Float) => rawaccel2.set(x,y,z)
     
+    case Message("/1/xy", y:Float, x:Float) => node.hole0.lerpTo(Vec2(x,1f-y), 0.1f)
     case Message("/1/fader1", f:Float) => node.fade = f
     case Message("/1/fader2", f:Float) => OSC.send("/left/fade",f)
     case Message("/1/fader3", f:Float) => OSC.send("/right/fade",f)
     case Message("/1/fader4", f:Float) => node.div = f*1.2f - 0.1f
     case Message("/1/push1", f:Float) => if(f == 1f) loadVideo("grass", true)
-    case Message("/1/push2", f:Float) => if(f == 1f) loadVideo("drivetrees", true)
-    case Message("/1/push5", f:Float) => if(f == 1f) loadVideo("citystreet", true)
-    case Message("/2/fader1", f:Float) => node.size0 = f*4.0f
+    case Message("/1/push2", f:Float) => if(f == 1f) loadVideo("underwater3", true)
+    case Message("/1/push3", f:Float) => if(f == 1f){
+      val v = randomPair()
+      loadVideo1(v._1, true)
+      loadVideo2(v._2, true)
+    }
+    case Message("/1/push4", f:Float) => if(f == 1f){
+      loadVideo1("grass", true)
+      loadVideo2("wave", true)
+    }
+    case Message("/1/push5", f:Float) => if(f == 1f) loadVideo("clouds", true)
+    case Message("/2/fader1", f:Float) => node.size0 = lerp(node.size0,f*8.0f,0.1f)
     case Message("/2/toggle1", f:Float) => node.mode0 = f
-    case Message("/2/fader8", f:Float) => node.size1 = f*4.0f
-    case Message("/2/toggle8", f:Float) => node.mode1 = f
+    // case Message("/2/fader2", f:Float) => node.size1 = lerp(node.size1,f*6.0f,0.1f)
+    // case Message("/2/toggle2", f:Float) => node.mode1 = f
+    case Message("/2/fader2", f:Float) => OSC.send("/left/fade",f)
+    case Message("/2/fader3", f:Float) => OSC.send("/right/fade",f)
+
+
+    case Message("/2/fader7", f:Float) => oscPhones.send("/brightness1", f)
+    case Message("/2/fader8", f:Float) => oscPhones.send("/brightness2", f)
+    case Message("/2/toggle7", f:Float) => oscPhones.send("/motionbg1", f)
+    case Message("/2/toggle8", f:Float) => oscPhones.send("/motionbg2", f)
+
+    case Message("/3/fader7", f:Float) => video1.setVolume(f)
+    case Message("/3/fader8", f:Float) => video2.setVolume(f)
+    case Message("/3/fader1", f:Float) => music1.setVolume(f); music2.setVolume(f)
+    case Message("/3/toggle1", f:Float) => if(f==1f) music1.play() else music1.stop()
+    case Message("/3/toggle2", f:Float) => if(f==1f) music2.play() else music2.stop()
+
     case msg => println(msg)
   }
 
@@ -233,15 +283,15 @@ object Master extends SeerApp {
 
     val v = Vec3(t.vel)
     // node.div = t.pos.x
-        node.hole0.set(-10,-10)
-        node.hole1.set(-10,-10)
+        // node.hole0.set(-10,-10)
+        // node.hole1.set(-10,-10)
 
     t.count match {
       case 1 => node.hole0.set(t.fingers(0).pos);
                 node.hole0.y = 1.0f - node.hole0.y
-      case 2 => node.hole0.set(t.fingers(0).pos); node.hole1.set(t.fingers(1).pos)
-                node.hole0.y = 1.0f - node.hole0.y
-                node.hole1.y = 1.0f - node.hole1.y
+      // case 2 => node.hole0.set(t.fingers(0).pos); node.hole1.set(t.fingers(1).pos)
+                // node.hole0.y = 1.0f - node.hole0.y
+                // node.hole1.y = 1.0f - node.hole1.y
       case 3 => node.div += v.x * 0.002f; if(node.div < -0.1f) node.div = -0.1f; if(node.div > 1.1f) node.div = 1.1f
       case 4 => //videos(2).quad.pose.pos += v * 0.01
                 // OSC.send("/left/fade",t.pos.y)
@@ -265,7 +315,8 @@ object Master extends SeerApp {
   // Keyboard.bind("9", ()=>{ video2 = videos(2)})
   Keyboard.bind("0", ()=>{ loadVideo2(randomVideo(),true) })
 
-  Keyboard.bind("p", ()=>{ if(music.isPlaying()) music.pause() else music.play() })
+  Keyboard.bind("o", ()=>{ if(music1.isPlaying()) music1.pause() else music1.play() })
+  Keyboard.bind("p", ()=>{ if(music2.isPlaying()) music2.pause() else music2.play() })
   Keyboard.bind("m", ()=>{ if(node.mode0 == 0f) node.mode0 = 1f else node.mode0 = 0f })
 }
 
@@ -279,8 +330,8 @@ class MaskBlendNode extends RenderNode {
   
   var div = 0.5f
   var fade = 1.0f
-  var hole0 = Vec2(-10,-10)
-  var hole1 = Vec2(-10,-10)
+  var hole0 = Vec2(-10,0.5)
+  var hole1 = Vec2(-10,0.5)
   var size0 = 1.0f
   var size1 = 1.0f
   var mode0 = 0.0
@@ -326,9 +377,9 @@ class Threshold(var thresh:Float) extends audio.Gen {
 }
 
 class BeatTrack extends audio.Gen {
-  var thresh = 0.1f
+  var thresh = 1f
   var decay = 0.0001f
-  var hold = 5
+  var hold = 35
   var t = hold
   def apply() = this(0f)
   def apply(in:Float) = {
