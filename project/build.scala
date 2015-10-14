@@ -5,7 +5,7 @@ import Keys._
 
 object ExperimentsBuild extends Build {
 
-  import SeerBuildSettings._
+  import SeerSettings._
 	import SeerBuild._
   import SeerModulesBuild._
 
@@ -41,15 +41,13 @@ object ExperimentsBuild extends Build {
     dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_openni)
 
   lazy val dailyworlds = project.settings(app: _*).
-    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_openni, seer_video, seer_opencv)
+    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_openni, seer_video, seer_opencv, seer_script)
 
   lazy val box2d = project.settings(app: _*).
     dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_box2d)
 
   lazy val quantumlove = project.settings(app: _*).
-    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_openni, seer_video, seer_opencv)
-
-
+    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_openni, seer_video, seer_opencv, seer_script)
 }
 
 
@@ -62,7 +60,7 @@ import spray.revolver.RevolverPlugin._
 
 object ChatBuild extends Build {
 
-  import SeerBuildSettings._
+  import SeerSettings._
 
   lazy val seer_server =
     Project("seer_server", file("seer-server"))
@@ -87,7 +85,7 @@ object ChatBuild extends Build {
   lazy val backend =
     Project("backend", file("seer-server/backend"))
       .settings(Revolver.settings: _*)
-      .settings(common: _*)
+      .settings(core: _*)
       .settings(
         libraryDependencies ++= Seq(
           "com.typesafe.akka" %% "akka-http-scala-experimental" % "1.0-RC2",

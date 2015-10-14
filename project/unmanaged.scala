@@ -39,7 +39,7 @@ object SeerUnmanagedLibs {
     val opencvDest = file("seer/seer-modules/seer-opencv/lib")
     // val kinectDest = file("seer/seer-modules/seer-kinect/lib")
     val leapDest = file("seer/seer-modules/seer-leap/lib")
-    val touchDest = file("seer/seer-modules/seer-multitouch/lib")
+    val touchDest = file("seer/seer-modules/seer-osx-multitouch/lib")
     val vrpnDest = file("seer/seer-modules/seer-vrpn/lib")
     val nativeDest = file("lib")
     
