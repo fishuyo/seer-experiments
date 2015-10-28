@@ -47,6 +47,7 @@ object SeerSettings {
     ),
     cancelable in Global := true,
     exportJars := true,
+    updateOptions := updateOptions.value.withCachedResolution(true),
     SeerUnmanagedLibs.downloadTask
 
   )

@@ -5,6 +5,8 @@
 import com.fishuyo.seer.openni._
 import com.fishuyo.seer.cv._
 import com.fishuyo.seer.particle._
+import com.fishuyo.seer.audio.gen._
+import com.fishuyo.seer.audio._
 
 import org.lwjgl.opengl.GL11
 
@@ -29,11 +31,11 @@ object Script extends SeerScript {
   var noisenode:NoiseNode = _
   var composite:CompositeNode = _
 
-  // OpenNI.initAll()
+  OpenNI.initAll()
   // OpenNI.alignDepthToRGB()
-  // OpenNI.start()
-  // OpenNI.pointCloud = true
-  // OpenNI.pointCloudDensity = 4
+  OpenNI.start()
+  OpenNI.pointCloud = true
+  OpenNI.pointCloudDensity = 4
   // OpenNI.makeDebugImage = true
 
   OpenCV.loadLibrary()
@@ -150,6 +152,8 @@ object Script extends SeerScript {
     fbnode = new FeedbackNode(0.9,0.1)
     composite = new CompositeNode(1,0)
     noisenode = new NoiseNode 
+    // fbnode.renderer.resize = false
+    // composite.renderer.resize = false
 
     RenderGraph.reset
     RenderGraph.addNode(noisenode)
@@ -158,6 +162,7 @@ object Script extends SeerScript {
     noisenode.outputTo(composite)
 
     composite.outputTo(fbnode)
+    // RootNode.outputTo(fbnode)
     fbnode.outputTo(new ScreenNode())
 
     loopTexture = Texture(loopImage)
@@ -174,6 +179,10 @@ object Script extends SeerScript {
 
   override def draw(){
     FPS.print
+
+    // fbnode.renderer.camera.viewportWidth = 2.0 * fbnode.renderer.viewport.aspect
+    // fbnode.renderer.camera.viewportHeight = 2.0
+
 
     if(drawTerrain){
       GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL)
@@ -238,7 +247,7 @@ object Script extends SeerScript {
     } else {
       if(audioReactive){
         val bg = follow.value //* 2
-        // Renderer().environment.backgroundColor.set(bg,bg,bg)
+        Renderer().environment.backgroundColor.set(bg,bg,bg)
         if(doBeat){
           if(drawTerrain){
             val r = Random.float(-.1,.1)
@@ -285,11 +294,63 @@ object Script extends SeerScript {
 
         // setup meshes and particle system
         mesh.clear
+
+        var i = 0
         out.foreach{ case user =>
           // mesh.vertices ++= user.skeleton.joints.values
           if(asParticles) particles ++= user.points.map(Particle(_, Random.vec3()*0.001))
           else mesh.vertices ++= user.points
+
+          var v = user.skeleton.joints("head")
+          // println(v.x + " " + v.y)
+          osc(i).f = new Ramp(osc(i).f.value, ((v.y+1f)*50f + 60f),100)
+          // osc(i).f = new Ramp(osc(i).f.value, ((v.y+1f)*50f + 80f),100)
+          pan(i) = new Ramp(pan(i).value, v.x, 100)
+
+          impulseAmp(i) = 0f
+          v = user.skeleton.vel("l_hand")
+          var mag = v.mag
+          println(mag)
+
+          if(mag > 0.05){
+            impulseAmp(i) = 1f 
+          }
+    
+          v = user.skeleton.vel("r_hand")
+          mag = v.mag
+          if(mag > 0.05){
+            impulseAmp(i) = 1f 
+          }
+
+          val l = user.skeleton.joints("l_hand")
+          val r = user.skeleton.joints("r_hand")
+
+          val dist = (r-l).mag()
+          del(i).delay = new Ramp(del(i).delay.value, (r-l).mag()*4000f, 100)
+          pulse(i).width = new Ramp(pulse(i).width.value, dist*10000f, 100)
+
+          // lfo(i).a (v.y+1f) / 2f //new Ramp(lfo.a, v.z)
+
+          lfo(i).a *= 1.15
+          if(lfo(i).a > 0.8f) lfo(i).a = 0.8f 
+
+          lfo(i).f = new Ramp(lfo(i).f.value, (r.y+1f), 100)
+
+          // Script.impulseAmp = 0f
+          // v = user.skeleton.vel("l_hand")
+          // var mag = v.mag
+          // if(mag > 0.01){
+          //   Script.impulseAmp = mag 
+          // }
+          i += 1
         }
+        for(j <- (i until 10)){
+          impulseAmp(j) = 0f
+          val f = j*80f + 20f //Random.float() * 220f
+          osc(j).f = new Ramp(osc(j).f.value, f, 44100)
+          lfo(j).a *= 0.996f
+        }
+
 
         if(asParticles) particles.animate(dt)
         else mesh.update
@@ -403,11 +464,54 @@ object Script extends SeerScript {
   val beat = new BeatTrack
   var doBeat = false
   var audioReactive = false
-  override def audioIO(io:audio.AudioIOBuffer){
-    while( io()){
+
+  val noise = new Noise
+  val osc = new Array[Sine](10) 
+  val lfo = new Array[Sine](10) 
+  val pan = new Array[Ramp](10)
+  val del = new Array[Delay](10)
+  val pulse = new Array[PulseTrain](10)
+  val impulseAmp = new Array[Float](10)
+  for(i <- (0 until 10)){
+    osc(i) = new Sine(0f)
+    lfo(i) = new Sine(0.1, 0.025)
+    pan(i) = new Ramp(0.5,0.5,100)
+    del(i) = new Delay(4000f, 0.98f)
+    pulse(i) = new PulseTrain(44100f)
+  }
+  // val lfo2 = new Sine(1,0.1)
+  // val del2 = new Delay(100f, 0.9f)
+  // var pan = new Sine(0.1, 0.5)
+
+  // var pulse = new PulseTrain(44100f)
+  // var impulseAmp = 0f
+  // val del2 = new Delay(4000f, 0.98f)
+
+
+  override def audioIO(io:AudioIOBuffer){
+    while(io()){
       follow(io.in(0))
       beat(io.in(0))
       if( beat.value > 0f) doBeat = true
+
+      var l=0f
+      var r=0f
+      for( i <- 0 until 10){
+        val s = lfo(i)()*osc(i)() + del(i)(pulse(i)()*impulseAmp(i))
+        // val s = del(i)(lfo(i)()*osc(i)())
+        val p = (pan(i)() + 1f) * 0.5f
+        l += s*(1f-p)
+        r += s*p 
+      }
+
+      // var s = del(lfo()*noise() + del2(pulse()*impulseAmp) )
+      // var s2 = lfo2()*osc()
+      // s +=
+      // val p = pan()+0.5f 
+      // val r = s*p + s2
+      // val l = s*(1f-p) + s2
+      io.outSet(0)(l/10f)
+      io.outSet(1)(r/10f)
     }
   }
 
