@@ -44,9 +44,12 @@ object ExperimentsBuild extends Build {
     dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_openni, seer_video, seer_opencv, seer_script)
 
   lazy val box2d = project.settings(app: _*).
-    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_box2d)
+    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_box2d, seer_script)
 
   lazy val quantumlove = project.settings(app: _*).
+    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_openni, seer_video, seer_opencv, seer_script)
+
+  lazy val pie = project.settings(app: _*).
     dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_openni, seer_video, seer_opencv, seer_script)
 }
 

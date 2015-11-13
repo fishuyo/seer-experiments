@@ -366,9 +366,9 @@ object Script extends SeerScript {
     // Shader.load("colorize", File("shaders/basic.vert"), File("shaders/colorize.frag")).monitor
   }
 
-  override def onUnload(){
+  // override def onUnload(){
     // OpenNI.disconnect
-  }
+  // }
 
   Keyboard.clear
   Keyboard.use

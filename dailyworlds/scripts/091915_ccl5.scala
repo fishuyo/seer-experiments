@@ -51,8 +51,8 @@ object AVFeedback extends SeerScript {
     initd = true
   }
 
-  override def onUnload(){
-  }
+  // override def onUnload(){
+  // }
 
   override def draw(){
 
