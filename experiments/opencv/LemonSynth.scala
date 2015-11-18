@@ -37,9 +37,9 @@ object Main extends SeerApp{
 
   val cube = Model(Cube())
   Scene.push(cube)
-  cube.material.textureMix = 1.f
+  cube.material.textureMix = 1.0f
 
-  val synth = new Sine(new Single(400.f), new Single(0.f))
+  val synth = new Sine(new Single(400.0f), new Single(0.0f))
   GdxAudio.init
   Audio().push(synth)
 
@@ -60,7 +60,7 @@ object Main extends SeerApp{
 
     pix = new Pixmap(w.toInt/2,h.toInt/2, Pixmap.Format.RGB888)
     bytes = new Array[Byte](h.toInt/2*w.toInt/2*3)
-    cube.scale.set(1.f, (h/w).toFloat, 1.f)
+    cube.scale.set(1.0f, (h/w).toFloat, 1.0f)
 
   	Texture(pix) 
 
@@ -68,8 +68,8 @@ object Main extends SeerApp{
   }
   override def draw(){
 
-    Shader.lightingMix = 0.f
-  	Shader.textureMix = 1.f
+    Shader.lightingMix = 0.0f
+  	Shader.textureMix = 1.0f
   	Texture.bind(0)
   	cube.draw()
 

@@ -24,7 +24,7 @@ object Trees extends Animatable {
   var gv = Vec3(0,-10f,0)
 
   //var trees = TreeNode(Vec3(0), .1f) :: List()
-  //trees(0).branch( 6, 45.f, .8f, 0 )
+  //trees(0).branch( 6, 45.0f, .8f, 0 )
   //override def animate( dt: Float ) = trees.foreach( _.animate(dt) )
   //override def onDraw( gl: GL2 ) = trees.foreach( _.onDraw(gl) )
   //override def draw() = trees.foreach( _.draw() )

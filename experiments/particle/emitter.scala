@@ -45,17 +45,17 @@
 
 // class MyEmitter(var maxParticles:Int) extends Animatable {
 
-//   var ttl = 10.f
+//   var ttl = 10.0f
 //   var particles = ListBuffer[Stick]()
 
 //   var origin = Vec3()
 //   var direction = Vec3(-1, 1, 0).normalize
 //   var spin = Vec3(0, 1, 0).normalize
-//   var spread = 0.f//.02f
+//   var spread = 0.0f//.02f
 //   var velocity = .1f
 
 //   var randVel = Random.vec3.map( v => (v * spread + direction) * velocity)
-//   var randAngVel = Random.vec3.map( v => (v * 0.f + spin) * velocity)
+//   var randAngVel = Random.vec3.map( v => (v * 0.0f + spin) * velocity)
 
 
 //   def addParticle(p:Stick) = particles += p
@@ -83,8 +83,8 @@
 //       // MatrixStack.rotate(Quat().fromEuler(p.euler))
 //       MatrixStack.scale(Vec3(.01f,.01f,.2f))
 
-//       val c = 1.f - (p.t / ttl)
-//       Shader.setColor(RGBA(c,.6f,.6f,1.f))
+//       val c = 1.0f - (p.t / ttl)
+//       Shader.setColor(RGBA(c,.6f,.6f,1.0f))
 //       Shader.setMatrices()
 //       Cube().draw()
 //       // Sphere().draw()

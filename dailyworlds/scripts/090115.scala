@@ -108,7 +108,7 @@ object Script extends SeerScript {
       //field.set(x,y,z, Vec3(x,y,z).normalize * .1f)
       //field.set(x,y,z, Vec3( -cen.z + -cen.x*.1f, -cen.y, cen.x ).normalize * .1f )
       //field.set(x,y,z, Vec3( math.sin(cen.x*3.14f), 0, math.cos(cen.z*3.14f) ).normalize * .1f)  
-      //field.set(x,y,z, Vec3( cen.x, y/10.f, cen.z).normalize * .1f )
+      //field.set(x,y,z, Vec3( cen.x, y/10.0f, cen.z).normalize * .1f )
       //field.set(x,y,z, Vec3(0,.1f,0) )
       //field.set(x,y,z, (Vec3(0,1,0)-cen).normalize * .1f )
     }

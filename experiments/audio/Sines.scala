@@ -15,17 +15,17 @@ object Sines extends SeerApp {
 	Audio().start
 
 	var i = 0
-	var t = 0.f
+	var t = 0.0f
 
 	override def animate(dt:Float){
 		t += dt 
 
 		// every second add a Sine generator with random frequency
-		if( t > 1.f){
-			t = 0.f
+		if( t > 1.0f){
+			t = 0.0f
 			i += 1
 
-			val freq = 440.f + 4.f * Random.int(-100,100)() 
+			val freq = 440.0f + 4.0f * Random.int(-100,100)() 
 			val amp = .4f/(i+1)
 
 			val s = new Sine(freq, amp)

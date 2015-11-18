@@ -59,8 +59,8 @@ object OmniStereo {
 
 			val v = Vec3(cel*saz,sel,-cel*caz).normalize
 
-			// data.put(y*w+x, Array(v.x,v.y,v.z,1.f))
-			data.put(Array(v.x,v.y,v.z,1.f))
+			// data.put(y*w+x, Array(v.x,v.y,v.z,1.0f))
+			data.put(Array(v.x,v.y,v.z,1.0f))
 
 		}
 		data.rewind
@@ -110,8 +110,8 @@ object OmniStereo {
 			val v = Vec3(y0*saz,y1,-y0*caz)
 			v.normalize
 
-			// data.put(y*w+x, Array(v.x,v.y,v.z,1.f))
-			data.put(Array(v.x,v.y,v.z,1.f), y*w+x, 4)
+			// data.put(y*w+x, Array(v.x,v.y,v.z,1.0f))
+			data.put(Array(v.x,v.y,v.z,1.0f), y*w+x, 4)
 
 		}
 		data.rewind
@@ -131,7 +131,7 @@ object OmniStereo {
 			val v = Vec3(f*sx*aspect,f*sy,-1)
 			v.normalize
 
-			data.put(Array(v.x,v.y,v.z,1.f), y*w+x, 4)
+			data.put(Array(v.x,v.y,v.z,1.0f), y*w+x, 4)
 
 		}
 		data.rewind
@@ -151,7 +151,7 @@ object OmniStereo {
 
 			val v = Vec3(f*sx*aspect,f*sy,-1).normalize
 
-			pix.setColor(v.x,v.y,v.z,1.f)
+			pix.setColor(v.x,v.y,v.z,1.0f)
 			pix.drawPixel(x,y)
 		}
 	}
@@ -514,9 +514,9 @@ class OmniStereo(res:Int=1024, useMipMaps:Boolean=true) {
 	var mClearColor = RGBA(0,0,0,0);
 
 	var mFace = 5
-	var mEyeParallax = 0.f
+	var mEyeParallax = 0.0f
 	var mNear = 0.1f
-	var mFar = 100.f
+	var mFar = 100.0f
 	var mResolution = res
 	var mNumProjections = 1
 	var mFrame = 0
@@ -546,10 +546,10 @@ class OmniStereo(res:Int=1024, useMipMaps:Boolean=true) {
 	/// Encapsulate the trio of fractional viewport, warp & blend maps:
 	class Projection {
 		class Parameters {
-			var projnum = 0.f			// ID of the projector
-			var (width, height) = (0.f,0.f)	// width/height in pixels
+			var projnum = 0.0f			// ID of the projector
+			var (width, height) = (0.0f,0.0f)	// width/height in pixels
 			var (projector_position, screen_center, normal_unit, x_vec, y_vec) = (Vec3(),Vec3(),Vec3(),Vec3(),Vec3())
-			var (screen_radius, bridge_radius, unused0) = (0.f,0.f,0.f)
+			var (screen_radius, bridge_radius, unused0) = (0.0f,0.0f,0.0f)
 
 			def fromList(l:List[Float]){
 				projnum = l(0)
@@ -594,7 +594,7 @@ class OmniStereo(res:Int=1024, useMipMaps:Boolean=true) {
 
 		// derived:
 		var (x_unit, y_unit) = (Vec3(),Vec3())
-		var (x_pixel, y_pixel, x_offset, y_offset) = (0.f,0.f,0.f,0.f)
+		var (x_pixel, y_pixel, x_offset, y_offset) = (0.0f,0.0f,0.0f,0.0f)
 		var position = Vec3() //Vec3d
 
 		// TODO: remove this
@@ -725,7 +725,7 @@ class OmniStereo(res:Int=1024, useMipMaps:Boolean=true) {
 				val idx = y1*w+x
 
 		    mWarp.data.position(4*idx)
-		    mWarp.data.put( Array(t(idx),u(idx),v(idx),1.f),0, 4)
+		    mWarp.data.put( Array(t(idx),u(idx),v(idx),1.0f),0, 4)
 
 		    // pWarp.setColor(t(idx),u(idx),v(idx),1)
 		    // pWarp.drawPixel(x,y)
@@ -938,7 +938,7 @@ class OmniStereo(res:Int=1024, useMipMaps:Boolean=true) {
 	}
 
 	// configure generatively:
-	def configure(wm:WarpModeType, a:Float=2.f, f:Float=math.Pi) = {
+	def configure(wm:WarpModeType, a:Float=2.0f, f:Float=math.Pi) = {
 		mNumProjections = 1
 		val p = mProjections(0)
 		wm match {
@@ -1117,15 +1117,15 @@ class OmniStereo(res:Int=1024, useMipMaps:Boolean=true) {
 			// float Y[4] = { 0,1,0,0 };
 			// float Z[4] = { 0,0,1,0 };
 			val buf = BufferUtils.newFloatBuffer(4)
-			var array = Array(1.f,0.f,0.f,0.f)
+			var array = Array(1.0f,0.0f,0.0f,0.0f)
 			buf.put(array)
 			buf.rewind
 			GL11.glTexGen( GL11.GL_S, GL11.GL_OBJECT_PLANE, buf );
-			array = Array(0.f,1.f,0.f,0.f)
+			array = Array(0.0f,1.0f,0.0f,0.0f)
 			buf.put(array)
 			buf.rewind
 			GL11.glTexGen( GL11.GL_T, GL11.GL_OBJECT_PLANE, buf );
-			array = Array(0.f,0.f,1.f,0.f)
+			array = Array(0.0f,0.0f,1.0f,0.0f)
 			buf.put(array)
 			buf.rewind
 			GL11.glTexGen( GL11.GL_R, GL11.GL_OBJECT_PLANE, buf );
@@ -1829,10 +1829,10 @@ class Agent(val body:Model) {
 	nav.set( body.pose)
 
 	val map = automapper(0,1)
-	var t = 0.f
+	var t = 0.0f
 
 	val s = new Sine(new Single(0), new Single(0))
-	var phase = 0.f
+	var phase = 0.0f
 	var freq = 0.1f
 
 	def draw(){ body.draw }
@@ -1843,21 +1843,21 @@ class Agent(val body:Model) {
 		val p = nav.pos - Script.c.pose.pos
 		// val p = nav.pos - Camera.nav.pos
 		val d = p.magSq
-		if( d < 10.f + Camera.nav.vel.mag ){
-			val amnt = 5.f - d + Camera.nav.vel.mag
+		if( d < 10.0f + Camera.nav.vel.mag ){
+			val amnt = 5.0f - d + Camera.nav.vel.mag
 			nav.vel = -p.normalized * amnt + Random.vec3()*amnt
-			t = 0.f
+			t = 0.0f
 			freq = amnt*0.1
-			s.f(amnt*400.f+40.f)
+			s.f(amnt*400.0f+40.0f)
 			s.a(0.1)
-			// if(s.amp.value == 0.f) s.a(Env.decay(2.f))
+			// if(s.amp.value == 0.0f) s.a(Env.decay(2.0f))
 		} else{
 			nav.vel *= 0.95
 		}
 		val v = map(nav.vel.mag)
 		body.material.color = HSV(0.5f+v,1,1-v)
 		val r = Random.float()
-		if( t > 5.f + r){
+		if( t > 5.0f + r){
 			nav.pos.lerpTo(pos0,0.01f)
 			val d = (pos0-nav.pos).mag
 			if( d > 0.5) body.material.color = HSV(0.11,0.5+r*0.5,1)
@@ -1907,7 +1907,7 @@ object Script extends SeerScript with OmniDrawable {
 
 	val h = HSV(0,1,1)
 	val n = 4
-	val s = 1.f
+	val s = 1.0f
 	val as = for(i<-(-n until n); j<-(-n until n); k<-(-n until n)) yield {
 		val sp = Sphere().translate(s*i,s*j,s*k).scale(0.1)
 		sp.material = Material.specular
@@ -1931,7 +1931,7 @@ object Script extends SeerScript with OmniDrawable {
 		  omni.onCreate
 
 		  ft = new FTexture(256,256)
-      for(i <- 0 until 256*256) ft.data.put(Array(1.f,0.f,0.f,1.f))
+      for(i <- 0 until 256*256) ft.data.put(Array(1.0f,0.0f,0.0f,1.0f))
 		  ft.bind(0)
 		  ft.update
 

@@ -87,12 +87,12 @@ object Script extends SeerScript {
 		if( D.mode == "x"){
 			viewX %= D.xs.size
 			if(viewX < 0) viewX = D.xs.size
-			newPos = Vec3(D.xshift.x,0,0) * D.xs(viewX) + Vec3(0.f,1,2)
+			newPos = Vec3(D.xshift.x,0,0) * D.xs(viewX) + Vec3(0.0f,1,2)
 			newQuat = Quat.forward
 		} else{
 			viewY %= D.ys.size
 			if(viewY < 0) viewY = D.ys.size
-			newPos = Vec3(0,0,D.yshift.y) * D.ys(viewY) + Vec3(2.f,1,0)
+			newPos = Vec3(0,0,D.yshift.y) * D.ys(viewY) + Vec3(2.0f,1,0)
 			newQuat = Quat.right
 		}
 		moveCamera = true
@@ -126,8 +126,8 @@ object Script extends SeerScript {
 	// Trackpad.connect
 	// Trackpad.bind {
 	// 	case (1,f) =>
-	// 	case (3,f) => D.xshift.y += f(3)*0.00025f; if(D.xshift.y < 0.f) D.xshift.y = 0.f
-	// 								D.yshift.x -= f(3)*0.00005f; if(D.yshift.x > 0.f) D.yshift.x = 0.f
+	// 	case (3,f) => D.xshift.y += f(3)*0.00025f; if(D.xshift.y < 0.0f) D.xshift.y = 0.0f
+	// 								D.yshift.x -= f(3)*0.00005f; if(D.yshift.x > 0.0f) D.yshift.x = 0.0f
 	// 	case _ => ()
 	// }
 
@@ -204,8 +204,8 @@ class DataSet(val path:String) extends Animatable {
 			
 			freq.zip(amp).foreach { 
 				case (f,a) =>
-					val x = map(f,D.fmin,D.fmax,-1.f,1.f)
-					val y = map(a,D.ampmin,D.ampmax,0.f,1.f)
+					val x = map(f,D.fmin,D.fmax,-1.0f,1.0f)
+					val y = map(a,D.ampmin,D.ampmax,0.0f,1.0f)
 					m.vertices += Vec3(x,y,0)
 			}
 			meshes += m
@@ -221,7 +221,7 @@ class DataSet(val path:String) extends Animatable {
 	override def animate(dt:Float){
 		if(meshes.isEmpty) return
 		models.clear
-			//var z = 0.f
+			//var z = 0.0f
 
 		positions.zip(meshes).foreach {
 			case (pos,mesh) =>
@@ -249,8 +249,8 @@ class DiffSet(a:DataSet,b:DataSet) extends Animatable {
 
 		a.freq.zip(diff).foreach { 
 			case (f,a) =>
-				val x = map(f,D.fmin,D.fmax,-1.f,1.f)
-				val y = map(a,D.ampmin,D.ampmax,0.f,1.f)
+				val x = map(f,D.fmin,D.fmax,-1.0f,1.0f)
+				val y = map(a,D.ampmin,D.ampmax,0.0f,1.0f)
 				m.vertices += Vec3(x,y,0)
 		}
 		meshes += m
@@ -455,7 +455,7 @@ object Omni extends Animatable with OmniDrawable {
 		omni.uniforms(omniShader);
 
 		val c = Cube()
-		c.scale(10.f)
+		c.scale(10.0f)
 		c.draw
 		// Script.pos1.draw
 		// Script.neg3.draw

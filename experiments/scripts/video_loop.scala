@@ -30,8 +30,8 @@ object Script extends SeerScript {
 
 	val loop = new VideoLoop
 
-	val quad1 = Plane().scale(1,-480.f/640.f,1).translate(-1.5,0,0)
-	val quad2 = Plane().scale(1,-480.f/640.f,1).translate(1,0,0)
+	val quad1 = Plane().scale(1,-480.0f/640.0f,1).translate(-1.5,0,0)
+	val quad2 = Plane().scale(1,-480.0f/640.0f,1).translate(1,0,0)
   val dpix = new Pixmap(640,480, Pixmap.Format.RGBA8888)
   val vpix = new Pixmap(640,480, Pixmap.Format.RGBA8888)
   var tex1:GdxTexture = _
@@ -50,10 +50,10 @@ object Script extends SeerScript {
 		tex2 = new GdxTexture(vpix)
 		quad1.material = Material.basic
 		quad1.material.texture = Some(tex1)
-		quad1.material.textureMix = 1.f
+		quad1.material.textureMix = 1.0f
 		quad2.material = Material.basic
 		quad2.material.texture = Some(tex2)
-		quad2.material.textureMix = 1.f
+		quad2.material.textureMix = 1.0f
   	inited = true
   }
 
@@ -131,7 +131,7 @@ object Script extends SeerScript {
   Keyboard.bind("x", () => loop.stack() )
   Keyboard.bind("c", () => loop.clear() )
   Keyboard.bind("	", () => loop.reverse() )
-  Keyboard.bind("j", () => loop.setAlphaBeta(1.f,.99f) )
+  Keyboard.bind("j", () => loop.setAlphaBeta(1.0f,.99f) )
   
   Keyboard.bind("p", () => video.ScreenCapture.toggleRecord )
   Keyboard.bind("o", () => loop.writeToFile() )
@@ -141,8 +141,8 @@ object Script extends SeerScript {
   Mouse.clear()
 	Mouse.use()
 	Mouse.bind("drag", (i) => {
-		val speed = (400 - i(1)) / 100.f
-	  val decay = (i(0) - 400) / 100.f
+		val speed = (400 - i(1)) / 100.0f
+	  val decay = (i(0) - 400) / 100.0f
 	  // # decay = (decay + 4)/8
 	  // # Loop.loop.setSpeed(speed)
 		// loop.setAlphaBeta(decay, speed)

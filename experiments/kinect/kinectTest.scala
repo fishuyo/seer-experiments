@@ -21,11 +21,11 @@ object Main extends App with Animatable{
   val live = new Ruby("kinectTest.rb")
 
   val cube = Model(Cube())
-  cube.scale.set(1.f, (2*480.f)/640.f, 1.f)
+  cube.scale.set(1.0f, (2*480.0f)/640.0f, 1.0f)
   Scene.push(cube)
 
   val pix = new Pixmap(640,2*480, Pixmap.Format.RGBA8888)
-  pix.setColor(1.f,1.f,1.f,0)
+  pix.setColor(1.0f,1.0f,1.0f,0)
   pix.fill()
 
   DesktopApp()  

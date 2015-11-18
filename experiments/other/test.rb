@@ -81,7 +81,7 @@ class Test
 		# })
 		# Scene.alpha(1.0)
 		# puts Main.node.scene.alpha
-    # node.scene.alpha = math.abs(math.sin(DesktopApp.app.frameCount/100.f).toFloat)
+    # node.scene.alpha = math.abs(math.sin(DesktopApp.app.frameCount/100.0f).toFloat)
 
 		# Shader.blend_=(false)
 		# Main.cube.rotate(3,0,0)

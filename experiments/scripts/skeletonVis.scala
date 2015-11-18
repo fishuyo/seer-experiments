@@ -67,11 +67,11 @@ object ScriptV extends SeerScript {
   for( i <- 0 until 6){
     val t = new Thing
     musicians += t
-    val theta = i/(6.f-1) * Pi
+    val theta = i/(6.0f-1) * Pi
     val r = 3.3f
     t.model.pose.pos.x = r*math.cos(theta)
     t.model.pose.pos.y = r*math.sin(theta)
-    t.model.pose.pos.z = -1.f
+    t.model.pose.pos.z = -1.0f
     // val c = Random.vec3()
     // t.color = RGB(c.x,c.y,c.z)
     t.color = RGB(1,0,0)
@@ -79,16 +79,16 @@ object ScriptV extends SeerScript {
 
 
   //uniforms
-  var t = 0.f
+  var t = 0.0f
   var alpha = 0.25f
   var beta = 0.985f
-  var maxz = 0.f
+  var maxz = 0.0f
 
 	override def draw(){
     // Sphere().draw()
     Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE)
     musicians.zipWithIndex.foreach{ case (m,i) =>
-      S.shaders("s1").uniforms("time") = 1.f
+      S.shaders("s1").uniforms("time") = 1.0f
       S.shaders("s1").uniforms("color") = m.color
       S.shaders("s1").uniforms("rms") = m.rms
       S.shaders("s2").uniforms("color") = m.color
@@ -99,7 +99,7 @@ object ScriptV extends SeerScript {
 		skeletons.foreach( (s) => {
       S.shaders("s1").uniforms("time") = t
       S.shaders("s1").uniforms("color") = s.color
-      S.shaders("s1").uniforms("rms") = 1.f
+      S.shaders("s1").uniforms("rms") = 1.0f
       s.draw
     })
 	}
@@ -107,7 +107,7 @@ object ScriptV extends SeerScript {
 	override def animate(dt:Float){
     val z = skeletons(0).joints("torso").z
     if( z > maxz){ maxz = z; println(maxz)}
-    beta = map(z,0.f,2.7f, 0.85, 0.9999f)
+    beta = map(z,0.0f,2.7f, 0.85, 0.9999f)
 
     Shader("composite")
     val fb = Shader.shader.get
@@ -239,7 +239,7 @@ class Thing extends Animatable {
   model2.shader = "s1"
   var rot = Random.vec3()*0.007f
 
-  val fabric = new SpringMesh( Plane.generateMesh(.2f,3.0f+Random.float(),10,30), 1.f)
+  val fabric = new SpringMesh( Plane.generateMesh(.2f,3.0f+Random.float(),10,30), 1.0f)
   fabric.pins += AbsoluteConstraint( fabric.particles.take(10).head, model.pose.pos)
   fabric.pins += AbsoluteConstraint( fabric.particles.take(10).last, model.pose.pos)
   fabric.pins += AbsoluteConstraint( fabric.particles.takeRight(10).head, Vec3(1))
@@ -263,7 +263,7 @@ class Thing extends Animatable {
 
 
 object Bone {
-	def apply() = new Bone(Vec3(),Quat(),0.f)
+	def apply() = new Bone(Vec3(),Quat(),0.0f)
 	def apply(p:Vec3,q:Quat,l:Float) = new Bone(p,q,l)
 }
 class Bone( var pos:Vec3, var quat:Quat, var length:Float)
@@ -347,7 +347,7 @@ class Skeleton(val id:Int) extends Animatable {
 class StickMan(override val id:Int) extends Skeleton(id) {
 
   val loadingModel = Cube().scale(0.1f).translate(0,0.5f,0)
-  val m = Cube().rotate(45.f.toRadians,0,45.f.toRadians)
+  val m = Cube().rotate(45.0f.toRadians,0,45.0f.toRadians)
   loadingModel.addPrimitive(m)
   m.material.color = color
   loadingModel.material.color = color

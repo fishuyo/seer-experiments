@@ -32,12 +32,12 @@ object Loop extends App with Animatable{
   def setSubtract(v:Boolean) = subtract = v
 
   val cube = Model(Cube())
-  cube.scale.set(1.f, (2*480.f)/640.f, 1.f)
+  cube.scale.set(1.0f, (2*480.0f)/640.0f, 1.0f)
   Scene.push(cube)
 
   val bigpix = new Pixmap(640,2*480, Pixmap.Format.RGBA8888)
   val pix = new Pixmap(640,480, Pixmap.Format.RGB888)
-  pix.setColor(1.f,1.f,1.f,0)
+  pix.setColor(1.0f,1.0f,1.0f,0)
   pix.fill()
 
   val bytes = new Array[Byte](640*480*3)
@@ -51,8 +51,8 @@ object Loop extends App with Animatable{
   }
 
   override def draw(){
-  	Shader.lightingMix = 0.f
-  	Shader.textureMix = 1.f
+  	Shader.lightingMix = 0.0f
+  	Shader.textureMix = 1.0f
 		// Texture(0).draw(Kinect.depthPix,0,480)
   	Texture.bind(0)
   	cube.draw()

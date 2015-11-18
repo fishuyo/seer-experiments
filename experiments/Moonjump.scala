@@ -55,7 +55,7 @@ object Moonjump extends SeerApp {
 	// val players = ArrayBuffer[Player]()
 	// val moons = ArrayBuffer[Moon]()
 	// for (i <- 0 until 7){
-	// 	val s = Random.float()*10.f + 1.f
+	// 	val s = Random.float()*10.0f + 1.0f
 	// 	val m = new Moon(0.01*s)
 	// 	m.position.set(Random.vec3()*1)
 	// 	m.lPosition.set(m.position - Random.vec3()*0.01)

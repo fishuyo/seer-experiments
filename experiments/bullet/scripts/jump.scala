@@ -31,8 +31,8 @@ class Player extends btMotionState {
   Camera.nav.pos.set(0,10,0)
 
   var localInertia = new Vector3()
-  boxShape.calculateLocalInertia(5.f,localInertia)
-  val rbInfo = new btRigidBody.btRigidBodyConstructionInfo(5.f, this, boxShape, localInertia);
+  boxShape.calculateLocalInertia(5.0f,localInertia)
+  val rbInfo = new btRigidBody.btRigidBodyConstructionInfo(5.0f, this, boxShape, localInertia);
   val body = new btRigidBody(rbInfo)
 
   body.setCollisionFlags(body.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_STATIC_OBJECT);
@@ -92,8 +92,8 @@ object Agent {
     agent.model.material = Material.basic
 
     var localInertia = new Vector3()
-    ballShape.calculateLocalInertia(5.f,localInertia)
-    val rbInfo = new btRigidBody.btRigidBodyConstructionInfo(5.f, agent, ballShape, localInertia);
+    ballShape.calculateLocalInertia(5.0f,localInertia)
+    val rbInfo = new btRigidBody.btRigidBodyConstructionInfo(5.0f, agent, ballShape, localInertia);
     agent.body = new btRigidBody(rbInfo)
     World.dynamicsWorld.addRigidBody(agent.body)
     agent
@@ -106,8 +106,8 @@ object Agent {
     agent.model.material = Material.basic
 
     var localInertia = new Vector3()
-    boxShape.calculateLocalInertia(5.f,localInertia)
-    val rbInfo = new btRigidBody.btRigidBodyConstructionInfo(5.f, agent, boxShape, localInertia);
+    boxShape.calculateLocalInertia(5.0f,localInertia)
+    val rbInfo = new btRigidBody.btRigidBodyConstructionInfo(5.0f, agent, boxShape, localInertia);
     agent.body = new btRigidBody(rbInfo)
     World.dynamicsWorld.addRigidBody(agent.body)
     agent
@@ -129,7 +129,7 @@ object World extends SeerScript {
   val groundShape = new btBoxShape(new Vector3(5,0.5,5))
 
   var localInertia = new Vector3()
-  val rbInfo = new btRigidBody.btRigidBodyConstructionInfo(0.f, null, groundShape, localInertia);
+  val rbInfo = new btRigidBody.btRigidBodyConstructionInfo(0.0f, null, groundShape, localInertia);
   val body = new btRigidBody(rbInfo)
 
   var agents = ArrayBuffer[Agent]()
@@ -154,12 +154,12 @@ object World extends SeerScript {
 
   }
 
-  var t = 0.f
+  var t = 0.0f
   override def animate(dt:Float){
     t += dt 
     if( t > 0.5f){
       Agent.cube()
-      t = 0.f
+      t = 0.0f
     }
 
     player.body.activate(true);
@@ -174,7 +174,7 @@ object Script extends SeerScript {
 
   implicit def f2i(f:Float) = f.toInt
 
-  var t = 0.f 
+  var t = 0.0f 
 
   val mesh = Mesh()
   mesh.primitive = Lines
@@ -229,15 +229,15 @@ object Script extends SeerScript {
     // generate new random mesh ever 2.5 seconds
     if( t > 5f){
       generateMesh(mesh)
-      t = 0.f
+      t = 0.0f
     }
 
     // model.rotate(0,0.001f,0)
 
     if( Mouse.status() == "down"){
       vel = (Mouse.xy() - lpos)/dt
-      val r = Camera.ray(Mouse.x()*Window.width, (1.f-Mouse.y()) * Window.height)
-      val p = r(3.f)
+      val r = Camera.ray(Mouse.x()*Window.width, (1.0f-Mouse.y()) * Window.height)
+      val p = r(3.0f)
       cubes += Cube().translate(p).scale(0.1)
     }
     lpos = Mouse.xy()

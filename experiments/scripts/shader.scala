@@ -17,8 +17,8 @@ object Script extends SeerScript {
 	// quad.shader = "test"
 
 	var shader:Shader = null
-	var t = 0.f
-	var zoom = 1.f
+	var t = 0.0f
+	var zoom = 1.0f
 	var mouse = Vec2()
 
 	Trackpad.clear()
@@ -38,7 +38,7 @@ object Script extends SeerScript {
 	override def animate(dt:Float){
 		t += dt
 		if( shader != null){
-			shader.uniforms("time") = t/10.f
+			shader.uniforms("time") = t/10.0f
 			shader.uniforms("zoom") = zoom
 			shader.uniforms("mouse") = mouse
 			shader.uniforms("resolution") = Vec2(1,1)

@@ -7,15 +7,15 @@ import io._
 
 object Script extends SeerScript {
 
-  var t = 0.f
-  var boost = 0.f
-  var depth = 10.f
+  var t = 0.0f
+  var boost = 0.0f
+  var depth = 10.0f
   var dy = 0.1f
 
   override def draw(){
     Shader.alpha(0.1f)
     Shader.blend("oneMinusSrc")
-    Shader.lineWidth(1.f)
+    Shader.lineWidth(1.0f)
 
     Sphere().mesh.primitive = Lines
     // Sphere().draw

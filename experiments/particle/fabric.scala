@@ -16,7 +16,7 @@
 //   val fabric = new Fabric()
 
 //   override def draw(){
-//     // Shader.lightingMix = 0.f
+//     // Shader.lightingMix = 0.0f
 //   	fabric.draw()
 //   }
 

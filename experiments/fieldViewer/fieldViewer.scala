@@ -41,7 +41,7 @@ class FieldViewer(var w:Int, var h:Int) extends Animatable {
 
   override def init() = runOnce()
   override def draw() = {
-    Shader.textureMix = 1.f
+    Shader.textureMix = 1.0f
     field.draw
   }
   override def animate(dt:Float) = if(running) runEverytime(dt)
@@ -69,19 +69,19 @@ class ConwayFV(ww:Int, hh:Int) extends FieldViewer(ww,hh) {
       }
       
       //was alive
-      if( field(x,y).r > 0.f ){
+      if( field(x,y).r > 0.0f ){
         count -= 1
-        if( count == 2 || count == 3) next.set(x,y,1.f)
+        if( count == 2 || count == 3) next.set(x,y,1.0f)
         else {
-        next.set(x,y,0.f)
+        next.set(x,y,0.0f)
         //println( x + " " + y + " dieing")
         }
-      }else if( field(x,y).r == 0.f) { //was dead
+      }else if( field(x,y).r == 0.0f) { //was dead
         if( count == 3 ){
-          next.set(x,y,1.f)
+          next.set(x,y,1.0f)
           //println( x + " " + y + " born")
         }
-        else next.set(x,y,0.f)
+        else next.set(x,y,0.0f)
       }
     }
     field.set( next )

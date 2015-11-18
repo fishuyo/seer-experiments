@@ -15,7 +15,7 @@ object FMSynth extends SeerApp {
   // start the audio actor
   Audio().start
 
-  var t = 0.f
+  var t = 0.0f
 
   
 

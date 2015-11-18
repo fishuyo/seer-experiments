@@ -22,17 +22,17 @@ object Main extends App with Animatable{
   DesktopApp.loadLibs()
   Scene.push(this)
 
-  val ground = Plane.generateMesh(20,20,100,100,Quat.up) //Cube().scale(2.f,0.1f,7.f).translate(0,-0.2f,3.5f)
+  val ground = Plane.generateMesh(20,20,100,100,Quat.up) //Cube().scale(2.0f,0.1f,7.0f).translate(0,-0.2f,3.5f)
   val groundM = Model(ground)
   groundM.material = new SpecularMaterial
-  groundM.material.color.set(0.f,.1f,.4f,.5f)
+  groundM.material.color.set(0.0f,.1f,.4f,.5f)
 
   val trace = new Trace3D(100)
 
   val skeletons = new ListBuffer[Skeleton]()
   for( i <- (0 until 5)) skeletons += new Skeleton(i)
-  skeletons(1).setColor(RGBA(1.f,1.f,1.f,.5f))
-  skeletons(2).setColor(RGBA(0.f,.7f,.1f,.5f))
+  skeletons(1).setColor(RGBA(1.0f,1.0f,1.0f,.5f))
+  skeletons(2).setColor(RGBA(0.0f,.7f,.1f,.5f))
   skeletons(3).setColor(RGBA(.8f,.2f,.2f,.5f))
   skeletons(4).setColor(RGBA(.8f,.8f,.0f,.5f))
 
@@ -41,20 +41,20 @@ object Main extends App with Animatable{
   for( i<-(0 until 10)) stream += new Skeleton(i)
 
   val fabricNode = new RenderNode
-  val fabric = new SpringMesh( Plane.generateMesh(.4f,.6f,20,30), 1.f) //Sphere()
-  fabric.particles.grouped(20).zipWithIndex.foreach{ case (xs,i) => xs.foreach(_.mass = (i+1)/30.f) }
+  val fabric = new SpringMesh( Plane.generateMesh(.4f,.6f,20,30), 1.0f) //Sphere()
+  fabric.particles.grouped(20).zipWithIndex.foreach{ case (xs,i) => xs.foreach(_.mass = (i+1)/30.0f) }
   fabric.springs.foreach( _.updateWeights())
   fabric.pins += AbsoluteConstraint( fabric.particles.takeRight(20).head, Vec3(-1,1,0))
   fabric.pins += AbsoluteConstraint( fabric.particles.takeRight(10).head, Vec3(1,1,0))
   fabric.pins += AbsoluteConstraint( fabric.particles.last, Vec3(1,1,0))
-  val fabric2 = new SpringMesh( Plane.generateMesh(.4f,.6f,20,30), 1.f) //Sphere()
-  fabric2.particles.grouped(20).zipWithIndex.foreach{ case (xs,i) => xs.foreach(_.mass = (i+1)/30.f) } 
+  val fabric2 = new SpringMesh( Plane.generateMesh(.4f,.6f,20,30), 1.0f) //Sphere()
+  fabric2.particles.grouped(20).zipWithIndex.foreach{ case (xs,i) => xs.foreach(_.mass = (i+1)/30.0f) } 
   fabric2.springs.foreach( _.updateWeights())
   fabric2.pins += AbsoluteConstraint( fabric2.particles.takeRight(20).head, Vec3(-1,1,0))
   fabric2.pins += AbsoluteConstraint( fabric2.particles.takeRight(10).head, Vec3(-1,1,0))
   fabric2.pins += AbsoluteConstraint( fabric2.particles.last, Vec3(1,1,0))
 
-  val fabric3 = new SpringMesh( Plane.generateMesh(.2f,.4f,10,20), 1.f) //Sphere()
+  val fabric3 = new SpringMesh( Plane.generateMesh(.2f,.4f,10,20), 1.0f) //Sphere()
   fabric3.pins += AbsoluteConstraint( fabric3.particles.head, Vec3(-1,1,0))
   fabric3.pins += AbsoluteConstraint( fabric3.particles.take(10).last, Vec3(-1,1,0))
   fabric3.pins += AbsoluteConstraint( fabric3.particles.takeRight(10).head, Vec3(-1,1,0))
@@ -79,7 +79,7 @@ object Main extends App with Animatable{
   fabricNode.scene.push(fabric2)
   // SceneGraph.addNode(node)
 
-  var t = 0.f
+  var t = 0.0f
   var skeletonTrail = false
   var trailDelay = 0.5f
   var trailOffset = Vec3(0,0,-.25f)
@@ -144,7 +144,7 @@ object Main extends App with Animatable{
         val xs = (s :: stream.toList).zip(stream).reverse
         xs.foreach( ss => {ss._2.joints = ss._1.joints.clone; ss._2.tracking = true } )
       })
-      t = 0.f
+      t = 0.0f
     }
     fabric.animate(dt)
     fabric2.animate(dt)
@@ -168,11 +168,11 @@ object Main extends App with Animatable{
 
 class Skeleton(val id:Int) extends Animatable {
 
-  var color = RGBA(0.f,.7f,.1f,.5f)
+  var color = RGBA(0.0f,.7f,.1f,.5f)
 
   var calibrating = false
   val loadingModel = Cube().scale(0.1f).translate(0,0.5f,0)
-  val m = Cube().rotate(45.f.toRadians,0,45.f.toRadians)
+  val m = Cube().rotate(45.0f.toRadians,0,45.0f.toRadians)
   loadingModel.addPrimitive(m)
   m.material.color = color
   loadingModel.material.color = color
@@ -304,7 +304,7 @@ class Skeleton(val id:Int) extends Animatable {
 
 
 
-class SpringString( var pos:Vec3=Vec3(0), var length:Float=0.2f, var dist:Float=.01f, var stiff:Float=1.f) extends Animatable {
+class SpringString( var pos:Vec3=Vec3(0), var length:Float=0.2f, var dist:Float=.01f, var stiff:Float=1.0f) extends Animatable {
 
   var particles = ListBuffer[Particle]()
   var links = ListBuffer[LinearSpringConstraint]()
@@ -312,7 +312,7 @@ class SpringString( var pos:Vec3=Vec3(0), var length:Float=0.2f, var dist:Float=
 
   val numLinks = (length / dist).toInt
 
-  var damping = 20.f
+  var damping = 20.0f
 
   for( i<-(0 to numLinks)){
     val p = Particle(pos)

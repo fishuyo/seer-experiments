@@ -6,6 +6,6 @@ import dynamic._
 
 object Main extends SeerApp {
 
-  val live = new SeerScriptLoader("t.scala")
+  val live = ScriptManager.load("t.scala")
 
 }

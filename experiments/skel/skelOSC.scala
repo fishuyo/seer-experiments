@@ -4,5 +4,5 @@ package skelOSC
 import dynamic._ 
 
 object Main extends SeerApp {
-  val live = new SeerScriptLoader("scripts/skeletonOsc.scala")
+  val live = ScriptManager.load("scripts/skeletonOsc.scala")
 }

@@ -90,7 +90,7 @@ object Script extends SeerScript {
 
       ft = new FTexture(256,256)
       val a = Array.fill(4*ft.w*ft.h)(.5f)
-      for(i <- 0 until 256*256) ft.data.put(Array(1.f,0.f,0.f,1.f))
+      for(i <- 0 until 256*256) ft.data.put(Array(1.0f,0.0f,0.0f,1.0f))
       ft.bind(0)
       ft.update
       ft.params
@@ -103,12 +103,12 @@ object Script extends SeerScript {
     ft.bind(0)
     Shader.shader.get.uniforms("u_texture0") = 0
     Shader.shader.get.setUniforms
-    Shader.textureMix = 1.f
+    Shader.textureMix = 1.0f
     s.material = Material.basic
-    s.material.textureMix = 1.f
+    s.material.textureMix = 1.0f
     s.draw
 
-		// GL11.glClearColor(1.f,1.f,0.f,1.f)
+		// GL11.glClearColor(1.0f,1.0f,0.0f,1.0f)
 		// GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT)
   //   GL11.glBegin(GL11.GL_TRIANGLES);
   //     // Top & Red

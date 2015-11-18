@@ -57,10 +57,10 @@ class Entity(override val r:Float) extends SParticle(r) with Animatable {
   override def animate(dt:Float) = {
     step()
     // model.pose.pos.set(position)
-    // position = orientation.toZ() * 3.f
+    // position = orientation.toZ() * 3.0f
     // lPosition = position
-    position.lerpTo( position.normalized * 3.f, 0.01)
-    // position.set( position.normalized * 3.f)
+    position.lerpTo( position.normalized * 3.0f, 0.01)
+    // position.set( position.normalized * 3.0f)
     model.pose.pos.set(position)
   }
 }
@@ -96,9 +96,9 @@ object Script extends SeerScript {
 
   for (i <- 0 until 500){
   
-    val s = Random.float()*10.f + 1.f
+    val s = Random.float()*10.0f + 1.0f
     val m = new Moon(0.01*s)
-    m.position.set(Random.vec3().normalized * 3.f)
+    m.position.set(Random.vec3().normalized * 3.0f)
     m.lPosition.set(m.position - Random.vec3()*0.01)
     m.mass = s
     
@@ -144,7 +144,7 @@ object Script extends SeerScript {
 
 object SimulatorScript extends SeerScript{
   
-  var t = 0.f
+  var t = 0.0f
 
   val controllerStateListener:ActorRef = system.actorOf(Props( new ControllerListener()), name = "controllerlistener")
   var statePublisher:ActorRef = system10g.actorOf(Props( new StatePublisher()), name = "statepublisher")

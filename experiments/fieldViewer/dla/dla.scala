@@ -23,7 +23,7 @@ class DlaFV(ww:Int, hh:Int) extends FieldViewer(ww,hh){
   var walk = (0,0)
   var c = RGBA(1,1,1,1)
 
-  override def runOnce() = field.set(w/2,h/2, 1.f)
+  override def runOnce() = field.set(w/2,h/2, 1.0f)
   override def runEverytime(dt:Float) = {
 
     genWalker()
@@ -48,7 +48,7 @@ class DlaFV(ww:Int, hh:Int) extends FieldViewer(ww,hh){
     val x = walk._1
     val y = walk._2
 
-    if( field(x+1,y) > 0.f || field(x-1,y) > 0.f || field(x,y+1) > 0.f || field(x,y-1) > 0.f ){
+    if( field(x+1,y) > 0.0f || field(x-1,y) > 0.0f || field(x,y+1) > 0.0f || field(x,y-1) > 0.0f ){
       field.set(x,y,c )
       genWalker()
       //c += Vec3( nextFloat * .01 - .005, nextFloat*.01-.005, nextFloat*.01-.005 )

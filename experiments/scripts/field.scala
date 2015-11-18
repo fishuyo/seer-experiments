@@ -79,7 +79,7 @@ class FieldViewer(var w:Int, var h:Int) extends Animatable {
 
   override def init() = runOnce()
   override def draw() = {
-    Shader.textureMix = 1.f
+    Shader.textureMix = 1.0f
     field.draw
   }
   override def animate(dt:Float) = if(running) runEverytime(dt)
@@ -106,19 +106,19 @@ def conway(fv:FieldViewer, dt:Float) = {
     }
     
     //was alive
-    if( fv.field(x,y).r > 0.f ){
+    if( fv.field(x,y).r > 0.0f ){
       count -= 1
-      if( count == 2 || count == 3) fv.next.set(x,y,1.f)
+      if( count == 2 || count == 3) fv.next.set(x,y,1.0f)
       else {
-      fv.next.set(x,y,0.f)
+      fv.next.set(x,y,0.0f)
       //println( x + " " + y + " dieing")
       }
-    }else if( fv.field(x,y).r == 0.f) { //was dead
+    }else if( fv.field(x,y).r == 0.0f) { //was dead
       if( count == 3 ){
-        fv.next.set(x,y,1.f)
+        fv.next.set(x,y,1.0f)
         //println( x + " " + y + " born")
       }
-      else fv.next.set(x,y,0.f)
+      else fv.next.set(x,y,0.0f)
     }
   }
   fv.field.set( fv.next )
@@ -129,13 +129,13 @@ object RD {
 	var alphaA = .75f
   var alphaB = 0f
   var eps = .02f
-  val dx = 165.f / 200.f //Main.n
+  val dx = 165.0f / 200.0f //Main.n
   var dtt = .02f
   var A = .75f
   var B = .01f
   
   type RA = List[Float]
-  val ra = (a: Float, b:Float ) => (1.f/eps)*(a*(1.f-a)*(a-(b+B)/A))
+  val ra = (a: Float, b:Float ) => (1.0f/eps)*(a*(1.0f-a)*(a-(b+B)/A))
   val rb = (a: Float, b:Float ) => a-b
 
 	class ChemField extends Field2D(100,100){
@@ -153,12 +153,12 @@ object RD {
 
 	def step(fv:FieldViewer, dt:Float){
 		val s = 5;
-    for( j <- (-s to s); i <- (-s to s) ) chemA.set( fv.w/2+i, fv.h/2+j, 1.f )
+    for( j <- (-s to s); i <- (-s to s) ) chemA.set( fv.w/2+i, fv.h/2+j, 1.0f )
 
     // diffusion
     for( y <- ( 1 to fv.h-2 ); x <- ( 1 to fv.w-2 )){
-      var a =  -4.f * chemA(x,y) + chemA(x+1,y) + chemA(x-1,y) + chemA(x,y+1) + chemA(x,y-1)
-      var b =  -4.f * chemB(x,y) + chemB(x+1,y) + chemB(x-1,y) + chemB(x,y+1) + chemB(x,y-1)
+      var a =  -4.0f * chemA(x,y) + chemA(x+1,y) + chemA(x-1,y) + chemA(x,y+1) + chemA(x,y-1)
+      var b =  -4.0f * chemB(x,y) + chemB(x+1,y) + chemB(x-1,y) + chemB(x,y+1) + chemB(x,y-1)
       a = chemA(x,y) + a * dtt * alphaA / (dx*dx)
       b = chemB(x,y) + b * dtt * alphaB / (dx*dx)
       chemA.next.set(x,y,a)
@@ -173,7 +173,7 @@ object RD {
       chemA.next.set(x,y,a)
       chemB.next.set(x,y,b)
 
-      val color = RGBA(0,0,1,1) * a + RGBA(.9f,.0f,0.f,1) * b
+      val color = RGBA(0,0,1,1) * a + RGBA(.9f,.0f,0.0f,1) * b
       fv.field.set(x,y, color )
     }
     

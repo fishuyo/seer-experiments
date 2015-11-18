@@ -49,7 +49,7 @@
 //     compNode.outputTo(ScreenNode)
 //   }
 //   override def draw(){
-//     Shader.lightingMix = 0.f
+//     Shader.lightingMix = 0.0f
 //   	strings.foreach( _.draw() )
 //   }
 
@@ -62,7 +62,7 @@
 
 
 
-// class String( var pos:Vec3=Vec3(0), var length:Float=1.f, var dist:Float=.05f, var stiff:Float=1.f) extends Animatable {
+// class String( var pos:Vec3=Vec3(0), var length:Float=1.0f, var dist:Float=.05f, var stiff:Float=1.0f) extends Animatable {
 
 //   var particles = ListBuffer[Particle]()
 //   var links = ListBuffer[LinearSpringConstraint]()
@@ -70,7 +70,7 @@
 
 //   val numLinks = (length / dist).toInt
 
-//   var damping = 20.f
+//   var damping = 20.0f
 
 //   for( i<-(0 to numLinks)){
 //   	val p = Particle(pos)
@@ -114,7 +114,7 @@
 //     //   particles.foreach( (p) => {
 //     //     if( field != null ) p.applyForce( field(p.position) ) 
 //     //     p.applyGravity()
-//     //     p.applyDamping(20.f)
+//     //     p.applyDamping(20.0f)
 //     //     p.animate(.015f) 
 //     //   })
 

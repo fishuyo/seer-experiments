@@ -4,5 +4,5 @@ package skelVis
 import dynamic._ 
 
 object Main extends SeerApp {
-  val live = new SeerScriptLoader("scripts/skeletonVis.scala")
+  val live = ScriptManager.load("scripts/skeletonVis.scala")
 }

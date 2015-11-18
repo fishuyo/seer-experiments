@@ -46,7 +46,7 @@
 
 //   Audio().push( looper )
 
-//   // val audioLoop = new Loop(10.f)
+//   // val audioLoop = new Loop(10.0f)
 //   // Audio.push(audioLoop)
 
 //   var loopNode:TextureNode = null
@@ -68,7 +68,7 @@
 
 //     pix = new Pixmap(w.toInt/2,h.toInt/2, Pixmap.Format.RGB888)
 //     bytes = new Array[Byte](h.toInt/2*w.toInt/2*3)
-//   	cube.scale.set(1.f, (h/w).toFloat, 1.f)
+//   	cube.scale.set(1.0f, (h/w).toFloat, 1.0f)
 
 //     // player = new VideoPlayer("/Users/fishuyo/Desktop/o.mp4")
 //     player = new VideoPlayer("/Users/fishuyo/projects/Documentation/feedback_puddle/1.mov")
@@ -84,7 +84,7 @@
 //     // compNode.clear = false
 //     val quag = new Drawable {
 //       val m = Plane.generateMesh() //Mesh(Primitive2D.quad)
-//       m.texCoords.foreach( (t) => t.y = 1.f-t.y )
+//       m.texCoords.foreach( (t) => t.y = 1.0f-t.y )
 //       m.update
 //       override def draw(){
 //         // Shader("composite").setUniformf("u_blend0", 1.0f)
@@ -100,13 +100,13 @@
 
 //     looper.loops(0).load("Desktop/introS.wav")
 //   	looper.loops(1).load("Desktop/boop.wav")
-//   	loop.setAlpha(1.f)
+//   	loop.setAlpha(1.0f)
 //   	live.init()
 //   }
 
 //   def resizeC(x1:Float,y1:Float, x2:Float, y2:Float){
 //     implicit def f2i(f:Float) = f.toInt
-//     val c = clamper(0.f,1.f)_
+//     val c = clamper(0.0f,1.0f)_
 //     val (l,r) = (if(x1>x2) (c(x2),c(x1)) else (c(x1),c(x2)) )
 //     val (t,b) = (if(y1>y2) (c(y2),c(y1)) else (c(y1),c(y2)) )
 //     println(s"resize: ${l*w} ${t*h} ${(r-l)*w} ${(b-t)*h}")
@@ -127,8 +127,8 @@
 
 //   override def draw(){
 
-//     Shader.lightingMix = 0.f
-//   	Shader.textureMix = 1.f
+//     Shader.lightingMix = 0.0f
+//   	Shader.textureMix = 1.0f
 //   	// Texture.bind(0)
 //   	// cube.draw()
 
@@ -142,7 +142,7 @@
 //     if( dirty ){  // resize everything if using sub image
 //       pix = new Pixmap(w.toInt/2,h.toInt/2, Pixmap.Format.RGB888)
 //       bytes = new Array[Byte](h.toInt/2*w.toInt/2*3)
-//       cube.scale.set(1.f, (h/w).toFloat, 1.f)
+//       cube.scale.set(1.0f, (h/w).toFloat, 1.0f)
 //       Texture.update(0, pix)
 //       loopNode.texture = Texture(0) 
 //     }

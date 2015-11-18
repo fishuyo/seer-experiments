@@ -103,7 +103,7 @@ object Script extends SeerScript {
 
   def resizeC(x1:Float,y1:Float, x2:Float, y2:Float){
     implicit def f2i(f:Float) = f.toInt
-    val c = clamper(0.f,1.f)_
+    val c = clamper(0.0f,1.0f)_
     val (l,r) = (if(x1>x2) (c(x2),c(x1)) else (c(x1),c(x2)) )
     val (t,b) = (if(y1>y2) (c(y2),c(y1)) else (c(y1),c(y2)) )
     // println(s"resizeC: ${l*w} ${t*h} ${(r-l)*w} ${(b-t)*h}")
@@ -141,7 +141,7 @@ object Script extends SeerScript {
     if( dirty ){  // resize everything if using sub image
       pix = new Pixmap((w*scale).toInt,(h*scale).toInt, Pixmap.Format.RGB888)
       bytes = new Array[Byte]((h.toInt*scale*w.toInt*scale*3).toInt)
-      // quad.scale.set(1.f, (h/w).toFloat, 1.f)
+      // quad.scale.set(1.0f, (h/w).toFloat, 1.0f)
       if(texture != null) texture.dispose
       texture = new GdxTexture(pix) 
       loopNode.texture = texture 

@@ -29,18 +29,18 @@ object Main extends App with Animatable {
 
 class MField(ww:Int,hh:Int) extends Field2D(ww,hh) {
   
-  var zoom = Vec3(1.f,0,0)
+  var zoom = Vec3(1.0f,0,0)
   var pos = Vec3(0)
 
   override def step(dt: Float) = {
 
     for( y <- (0 until h); x <- (0 until w)){
-      var p = Vec3( pos.x + x * 4.f*zoom.x / w - 2.f*zoom.x, pos.y + y * 4.f*zoom.x / h - 2.f*zoom.x, 0);
+      var p = Vec3( pos.x + x * 4.0f*zoom.x / w - 2.0f*zoom.x, pos.y + y * 4.0f*zoom.x / h - 2.0f*zoom.x, 0);
       var orig = Vec3(0) + p
       
       var t = 0;
 
-      while( p.mag < 2.f && t < 100 ){
+      while( p.mag < 2.0f && t < 100 ){
         var xx = p.x*p.x - p.y*p.y
         var yy = 2*p.x*p.y
         p = Vec3( xx, yy, 0)

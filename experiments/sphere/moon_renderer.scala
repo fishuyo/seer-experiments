@@ -49,7 +49,7 @@ object Script extends SeerScript {
 
   for (i <- 0 until 500){
   
-    val s = i*0.05 + 1.f
+    val s = i*0.05 + 1.0f
     val m = Sphere().scale(0.01*s)
     m.material = Material.specular
     moons += m
@@ -74,7 +74,7 @@ object RendererScript extends SeerScript {
 
   Node.mode = "omni"
 
-  var t = 0.f
+  var t = 0.0f
 	val stateListener = system10g.actorOf(Props( new StateListener()), name = "statelistener")
 
 	override def preUnload(){

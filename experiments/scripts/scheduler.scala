@@ -15,7 +15,7 @@ object Script extends SeerScript {
 	// val s = Plane()
 	// s.material = Material.basic
 
-	var c = 0.f
+	var c = 0.0f
 	
 	Schedule.every(100 millis){
 		val s = Sphere().scale(0.05f)
@@ -25,7 +25,7 @@ object Script extends SeerScript {
 		val pos = Vec3(-1,1,-1) //Random.vec3()
 		val dest = Random.vec3()
 		Schedule.over(1 second){
-			case f if f >= 1.f => Scene.remove(s)
+			case f if f >= 1.0f => Scene.remove(s)
 			case f => s.pose.pos = pos.lerp(dest,f)
 		}
 	}

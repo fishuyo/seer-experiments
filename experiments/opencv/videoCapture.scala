@@ -62,14 +62,14 @@
 
 //     pix = new Pixmap(w.toInt/2,h.toInt/2, Pixmap.Format.RGB888)
 //     bytes = new Array[Byte](h.toInt/2*w.toInt/2*3)
-//     cube.scale.set(1.f, (h/w).toFloat, 1.f)
+//     cube.scale.set(1.0f, (h/w).toFloat, 1.0f)
 
 //   	Texture(player.pixmap) //pix) 
 //   }
 //   override def draw(){
 
-//     Shader.lightingMix = 0.f
-//   	Shader.textureMix = 1.f
+//     Shader.lightingMix = 0.0f
+//   	Shader.textureMix = 1.0f
 //   	Texture.bind(0)
 //   	cube.draw()
 

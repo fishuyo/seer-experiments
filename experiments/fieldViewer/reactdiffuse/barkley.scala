@@ -31,13 +31,13 @@ class ReactDiffuseFV extends FieldViewer(100,100) {
   var alphaA = .75f
   var alphaB = 0f
   var eps = .02f
-  val dx = 165.f / 200.f //Main.n
+  val dx = 165.0f / 200.0f //Main.n
   var dtt = .02f
   var A = .75f
   var B = .01f
   
   type RA = List[Float]
-  val ra = (a: Float, b:Float ) => (1.f/eps)*(a*(1.f-a)*(a-(b+B)/A))
+  val ra = (a: Float, b:Float ) => (1.0f/eps)*(a*(1.0f-a)*(a-(b+B)/A))
   val rb = (a: Float, b:Float ) => a-b
 
   override def resize(x:Int,y:Int){
@@ -51,12 +51,12 @@ class ReactDiffuseFV extends FieldViewer(100,100) {
   override def runEverytime(dt:Float) = {
 
     val s = 5;
-    for( j <- (-s to s); i <- (-s to s) ) chemA.set( w/2+i, h/2+j, 1.f )
+    for( j <- (-s to s); i <- (-s to s) ) chemA.set( w/2+i, h/2+j, 1.0f )
 
     // diffusion
     for( y <- ( 1 to h-2 ); x <- ( 1 to w-2 )){
-      var a =  -4.f * chemA(x,y) + chemA(x+1,y) + chemA(x-1,y) + chemA(x,y+1) + chemA(x,y-1)
-      var b =  -4.f * chemB(x,y) + chemB(x+1,y) + chemB(x-1,y) + chemB(x,y+1) + chemB(x,y-1)
+      var a =  -4.0f * chemA(x,y) + chemA(x+1,y) + chemA(x-1,y) + chemA(x,y+1) + chemA(x,y-1)
+      var b =  -4.0f * chemB(x,y) + chemB(x+1,y) + chemB(x-1,y) + chemB(x,y+1) + chemB(x,y-1)
       a = chemA(x,y) + a * dtt * alphaA / (dx*dx)
       b = chemB(x,y) + b * dtt * alphaB / (dx*dx)
       chemA.next.set(x,y,a)

@@ -58,7 +58,7 @@ object Script extends SeerScript {
 	var dirty = true;
 	var alpha = 0.2;
 	var beta = 0.8;
-	var t = 0.f
+	var t = 0.0f
 
 	override def draw(){
 		// Shader("s1")

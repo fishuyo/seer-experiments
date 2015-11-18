@@ -14,8 +14,8 @@ object Script extends SeerScript {
 	// SceneGraph.addNode(node) 
 
 	var shader:Shader = null
-	var t = 0.f
-	var zoom = 1.f
+	var t = 0.0f
+	var zoom = 1.0f
 	var mouse = Vec2()
 
 	Trackpad.clear()

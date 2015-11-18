@@ -72,8 +72,8 @@ object Main extends App {
 //       case KeyEvent.VK_R => ParticleCollector.rotate = !ParticleCollector.rotate
 //       case KeyEvent.VK_F => ParticleCollector.thresh += .005f
 //       case KeyEvent.VK_V => ParticleCollector.thresh -= .005f 
-//       case KeyEvent.VK_G => ParticleCollector.pointSize += 1.f
-//       case KeyEvent.VK_B => ParticleCollector.pointSize -= 1.f
+//       case KeyEvent.VK_G => ParticleCollector.pointSize += 1.0f
+//       case KeyEvent.VK_B => ParticleCollector.pointSize -= 1.0f
 //       case KeyEvent.VK_I => ParticleCollector.writePoints("points_" + t + ".point")
 //       case KeyEvent.VK_O => ParticleCollector.writeOrientedPoints("points_" + t + ".xyz")
 //       case KeyEvent.VK_P => ParticleCollector.writePoints2D("points2Dspun_" + t + ".xyz")
@@ -130,17 +130,17 @@ class Particle( pos :Vec3=Vec3(0), var vel:Vec3=Vec3(0) ) extends Vec3(pos.x,pos
 object Particle {
   val rand = scala.util.Random
   
-  def apply() = new Particle( randomVec(1.f), randomVec(1.f) );
+  def apply() = new Particle( randomVec(1.0f), randomVec(1.0f) );
   def randomVec(s: Float) : Vec3 = (new Vec3( rand.nextFloat * 2 - 1, rand.nextFloat * 2 - 1, rand.nextFloat * 2 - 1)).normalize * s
 }
 
 object ParticleCollector extends Animatable {
 
-  var pointSize = 5.f
+  var pointSize = 5.0f
   var showField = false
   var changeSpeed = .01f;
   var thresh = .01f;
-  var rot = 0.f
+  var rot = 0.0f
   var rotate = false;
 
   var maxParticles = 100000
@@ -148,7 +148,7 @@ object ParticleCollector extends Animatable {
 
   var particles = new ListBuffer[Particle]() //generateParticles(numParticles)
   var collection = new ListBuffer[Particle]()
-  var octree = Octree( Vec3(0), 2.f)
+  var octree = Octree( Vec3(0), 2.0f)
 
   val n = 10
   var field = new VecField3D( n )
@@ -159,7 +159,7 @@ object ParticleCollector extends Animatable {
     //field.set(x,y,z, Vec3(x,y,z).normalize * .1f)
     //field.set(x,y,z, Vec3( -cen.z + -cen.x*.1f, -cen.y, cen.x ).normalize * .1f )
     //field.set(x,y,z, Vec3( math.sin(cen.x*3.14f), 0, math.cos(cen.z*3.14f) ).normalize * .1f)  
-    //field.set(x,y,z, Vec3( cen.x, y/10.f, cen.z).normalize * .1f )
+    //field.set(x,y,z, Vec3( cen.x, y/10.0f, cen.z).normalize * .1f )
     //field.set(x,y,z, Vec3(0,.1f,0) )
     //field.set(x,y,z, (Vec3(0,1,0)-cen).normalize * .1f )
   }
@@ -168,7 +168,7 @@ object ParticleCollector extends Animatable {
   var vertices:Array[Float] = _
   var meshCol:GdxMesh = _
   var verticesCol:Array[Float] = _
-  var color = Vec3(2.f)
+  var color = Vec3(2.0f)
 
     if( mesh == null){
       vertices = new Array[Float](3*numParticles)
@@ -205,7 +205,7 @@ object ParticleCollector extends Animatable {
     var dist = dir.mag
     val r = new Ray( from, dir.normalize )
     var p:Particle = null
-    while( dist >= 0.f ){
+    while( dist >= 0.0f ){
       val v = r(dist)
       val p = new Particle(v, (v*Vec3(1,0,1)).normalize )
       insertPoint(p)
@@ -219,10 +219,10 @@ object ParticleCollector extends Animatable {
     val dirz = (to-from)*Vec3(0,0,1)
     var distz = dirz.mag
     val rz = new Ray( from, dirz.normalize )
-    while( distz >= 0.f ){
+    while( distz >= 0.0f ){
       var rx = new Ray( rz(distz), dirx.normalize )
       var distx = dirx.mag
-      while( distx >= 0.f ){
+      while( distx >= 0.0f ){
         val v = rx(distx)
         val p = new Particle(v, (v+Vec3(0,.05,0)).normalize )
         insertPoint(p)
@@ -238,8 +238,8 @@ object ParticleCollector extends Animatable {
 
   override def animate( dt: Float )= {
 
-    if( rotate ) rot += 2.f
-    if( rot > 180.f) rot = -180.f
+    if( rotate ) rot += 2.0f
+    if( rot > 180.0f) rot = -180.0f
 
     
     val count = collection.size
@@ -263,7 +263,7 @@ object ParticleCollector extends Animatable {
         }
       }
 
-      if( p.y < 0.f) p.vel.y *= -1.f
+      if( p.y < 0.0f) p.vel.y *= -1.0f
       if( p.mag > 4.0f ){
         particles -= p;
         //particles += Particle()
@@ -283,7 +283,7 @@ object ParticleCollector extends Animatable {
       meshCol = new GdxMesh(false,maxParticles,0,VertexAttribute.Position)
     }
  
-    Shader.setColor( color, 1.f)
+    Shader.setColor( color, 1.0f)
     meshCol.setVertices(verticesCol, 0, 3*collection.length)
     meshCol.render( Shader(), GL20.GL_POINTS)
 
@@ -295,13 +295,13 @@ object ParticleCollector extends Animatable {
     // gl.glEnable (GL.GL_BLEND);
     // gl.glBlendFunc (GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
-    // gl.glRotatef(rot,0.f,1.f,0.f)
+    // gl.glRotatef(rot,0.0f,1.0f,0.0f)
 
     // gl.glPointSize( pointSize )
-    // gl.glColor4f( 0.f, 1.f, 0.f, .2f)
+    // gl.glColor4f( 0.0f, 1.0f, 0.0f, .2f)
     // gl.glBegin( GL.GL_POINTS )
     //   particles.foreach( _.onDraw( gl ) )
-    //   gl.glColor4f( 0.f, 0.f, 1.f, .2f)
+    //   gl.glColor4f( 0.0f, 0.0f, 1.0f, .2f)
     //   collection.foreach( _.onDraw( gl ) )
     // gl.glEnd
     
@@ -348,7 +348,7 @@ object ParticleCollector extends Animatable {
     
     val out = new java.io.FileWriter( file )  
     
-    var r=0.f
+    var r=0.0f
     var list = List[Particle]()
 
     while( r < 2 * math.Pi ){

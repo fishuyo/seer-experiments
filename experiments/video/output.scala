@@ -21,7 +21,7 @@ object Main extends App {
 	val codec = "mpeg4"
 
 	val bi = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR)
-  val writer = new VideoWriter(path, w, h, 1.f, 30, codec)
+  val writer = new VideoWriter(path, w, h, 1.0f, 30, codec)
 
   // val buffer = IBuffer.make(null, w*h*3)
   // val v = IVideoPicture.make(buffer, IPixelFormat.Type.RGB24, w,h)

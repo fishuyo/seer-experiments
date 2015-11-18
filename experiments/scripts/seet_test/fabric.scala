@@ -23,14 +23,14 @@ object Script extends SeerScript {
 
   implicit def f2i(f:Float) = f.toInt
 
-  var t = 0.f 
+  var t = 0.0f 
 
   val mesh = Plane.generateMesh(10,10,50,50,Quat.forward)
   mesh.primitive = Lines
 
-  val fabric = new SpringMesh(mesh,1.f) //,4.f)
+  val fabric = new SpringMesh(mesh,1.0f) //,4.0f)
   val constraints = new Array[LinearSpringConstraint](4)
-  for( i <- 0 until 4) constraints(i) = LinearSpringConstraint(Particle(Vec3()),Particle(Vec3()),1.f,1.f)
+  for( i <- 0 until 4) constraints(i) = LinearSpringConstraint(Particle(Vec3()),Particle(Vec3()),1.0f,1.0f)
   // fabric.springs ++= constraints
 
   val model = Model(mesh) 
@@ -59,7 +59,7 @@ object Script extends SeerScript {
     model.mesh.primitive = Points
     model.draw
 
-    // Text.render(msg,0.f,0.f)
+    // Text.render(msg,0.0f,0.0f)
 
   }
 
@@ -73,14 +73,14 @@ object Script extends SeerScript {
 
     if( Mouse.status() == "drag"){
       vel = (Mouse.xy() - lpos)/dt
-      val r = Camera.ray(Mouse.x()*Window.width, (1.f-Mouse.y()) * Window.height)
+      val r = Camera.ray(Mouse.x()*Window.width, (1.0f-Mouse.y()) * Window.height)
       
       val v = Camera.nav.ur() * vel.x + Camera.nav.uu() * vel.y
 
       fabric.particles.foreach( (p) => {
         val t = r.intersectSphere(p.position, 0.25f)
         if(t.isDefined){
-          p.applyForce(v*150.f)
+          p.applyForce(v*150.0f)
         }
       })
 
@@ -95,7 +95,7 @@ object Script extends SeerScript {
   }
 
   val down = Array(false,false,false,false)
-  val dist = Array(0.f,0.f,0.f,0.f)
+  val dist = Array(0.0f,0.0f,0.0f,0.0f)
   Trackpad.clear
   Trackpad.connect
   Trackpad.bind((touch) => {
@@ -104,17 +104,17 @@ object Script extends SeerScript {
     touch.fingers.take(4).zipWithIndex.foreach {
       case (f,i) =>
         if(down(i)){
-          val r = Camera.ray(f.pos.x*Window.width, (1.f-f.pos.y) * Window.height)
+          val r = Camera.ray(f.pos.x*Window.width, (1.0f-f.pos.y) * Window.height)
           constraints(i).q.position = r(dist(i))
         }else{
-          val r = Camera.ray(f.pos.x*Window.width, (1.f-f.pos.y) * Window.height)
+          val r = Camera.ray(f.pos.x*Window.width, (1.0f-f.pos.y) * Window.height)
 
           fabric.particles.foreach( (p) => {
             val t = r.intersectSphere(p.position, 0.1f)
             if(t.isDefined){
               down(i) = true
               dist(i) = t.get
-              constraints(i) = LinearSpringConstraint(p,Particle(Vec3(p.position)),0.01f,1.f)
+              constraints(i) = LinearSpringConstraint(p,Particle(Vec3(p.position)),0.01f,1.0f)
             }
           })
         }

@@ -21,7 +21,8 @@ object WorldScript extends SeerApp {
   var indx = 0
   val dir = new java.io.File("scripts")
   val scripts = dir.listFiles().filter(_.getName.endsWith(".scala"))
-  var actor = ScriptManager.load(scripts(indx).getPath)
+  // var actor = ScriptManager.load(scripts(indx).getPath)
+  var actor = ScriptManager.load("scripts/052315.scala")
 
   def next(){
     indx += 1

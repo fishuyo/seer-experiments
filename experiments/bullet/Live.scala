@@ -12,7 +12,7 @@ import dynamic._
   * 
   */
 object LiveScript extends SeerApp {
-  val live = new SeerScriptLoader("scripts/jump.scala")
+  val live = ScriptManager.load("scripts/jump.scala")
 
   override def draw(){}
   override def animate(dt:Float){}

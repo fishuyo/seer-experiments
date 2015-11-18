@@ -21,10 +21,10 @@ class Agent(val body:Model) {
 	nav.set( body.pose)
 
 	val map = automapper(0,1)
-	var t = 0.f
+	var t = 0.0f
 
 	val s = new Sine(new Single(0), new Single(0))
-	var phase = 0.f
+	var phase = 0.0f
 	var freq = 0.1f
 
 	def draw(){ body.draw }
@@ -35,21 +35,21 @@ class Agent(val body:Model) {
 		val p = nav.pos - Script.c.pose.pos
 		// val p = nav.pos - Camera.nav.pos
 		val d = p.magSq
-		if( d < 10.f + Camera.nav.vel.mag ){
-			val amnt = 5.f - d + Camera.nav.vel.mag
+		if( d < 10.0f + Camera.nav.vel.mag ){
+			val amnt = 5.0f - d + Camera.nav.vel.mag
 			nav.vel = -p.normalized * amnt + Random.vec3()*amnt
-			t = 0.f
+			t = 0.0f
 			freq = amnt*0.1
-			s.f(amnt*400.f+40.f)
+			s.f(amnt*400.0f+40.0f)
 			s.a(0.1)
-			// if(s.amp.value == 0.f) s.a(Env.decay(2.f))
+			// if(s.amp.value == 0.0f) s.a(Env.decay(2.0f))
 		} else{
 			nav.vel *= 0.95
 		}
 		val v = map(nav.vel.mag)
 		body.material.color = HSV(0.5f+v,1,1-v)
 		val r = Random.float()
-		if( t > 5.f + r){
+		if( t > 5.0f + r){
 			nav.pos.lerpTo(pos0,0.01f)
 			val d = (pos0-nav.pos).mag
 			if( d > 0.5) body.material.color = HSV(0.11,0.5+r*0.5,1)
@@ -76,17 +76,17 @@ object Script extends SeerScript {
 
 	val h = HSV(0,1,1)
 	val n = 5
-	val s = 1.f
+	val s = 1.0f
 	val as = for(i<-(-n until n); j<-(-n until n); k<-(-n until n)) yield new Agent(Circle().translate(s*i,s*j,s*k).scale(0.1))
 
 	val buf = ListBuffer[Vec2]()
 
-	var theta = 0.f
+	var theta = 0.0f
 	val osc = new Sine(new Single(140), new Single(1))
 
 	// Audio.start
 	Mouse.use
-	// rx.Obs(Mouse.scroll){ c.scale(1.f+0.001f*Mouse.scroll()) }
+	// rx.Obs(Mouse.scroll){ c.scale(1.0f+0.001f*Mouse.scroll()) }
 	rx.Obs(Mouse.scroll){ 
 		c.translate((Camera.nav.pos-c.pose.pos)*Mouse.scroll()*0.001f)
 		h *= HSV(0.001f*Mouse.scroll(),1,1)
@@ -96,7 +96,7 @@ object Script extends SeerScript {
 	override def draw(){
 		Scene.alpha = 1
 		theta += 0.001f
-    MatrixStack.rotate(0.f,0.f,0.f)//theta,0.f)
+    MatrixStack.rotate(0.0f,0.0f,0.0f)//theta,0.0f)
 		c.draw()
 		as.foreach(_.draw)
 	}

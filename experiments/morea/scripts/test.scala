@@ -22,13 +22,13 @@ object Script extends SeerScript {
 	val models = ArrayBuffer[Model]()
 
 	for(j <- 0 until 5; i <- 0 until 5){
-		meshGrid(j)(i) = Plane.generateMesh(10.f,10.f,mw,mh, Quat.up)
+		meshGrid(j)(i) = Plane.generateMesh(10.0f,10.0f,mw,mh, Quat.up)
 		models += Model(meshGrid(j)(i)).translate(10*i,0,-10*j)
 	}
 
 	models.foreach(_.material = Material.specular)
 
-	val mesh = Plane.generateMesh(10.f,10.f,mw,mh, Quat.up)
+	val mesh = Plane.generateMesh(10.0f,10.0f,mw,mh, Quat.up)
 
 	val model = Model(mesh)
 	model.material = Material.specular
@@ -60,7 +60,7 @@ object Script extends SeerScript {
 				val pix = img.getPixel(x,y)
 				val h = pix(0)
 				val idx = (y-my)*mw + (x-mx)
-				meshGrid(j)(i).vertices(idx).y = h/255.f * 5.f
+				meshGrid(j)(i).vertices(idx).y = h/255.0f * 5.0f
 			}
 		}
 
@@ -75,13 +75,13 @@ object Script extends SeerScript {
 		// 	val i = (my)*mw + (mx)
 
 		// 	if( mx == 0 && mi != 0 ){
-		// 		meshGrid(mj)(mi-1).vertices(i).y = h/255.f * 5.f
+		// 		meshGrid(mj)(mi-1).vertices(i).y = h/255.0f * 5.0f
 		// 	}
 		// 	if( my == 0 ){}
 
 		// 	// println(s"$mx $my $mi $mj")
 
-		// 	meshGrid(mj)(mi).vertices(i).y = h/255.f * 5.f
+		// 	meshGrid(mj)(mi).vertices(i).y = h/255.0f * 5.0f
 
 		// 	// println(s"${pix(0)} ${pix(1)} ${pix(2)} ${pix(3)}")
 		// 	// mesh.vertices(i).y = h
@@ -93,10 +93,10 @@ object Script extends SeerScript {
 		// println(min + " " + max)
 		// mesh.vertices.foreach( (v) => v.y = map(v.y,min,max,0,5))
 
-		// mesh.vertices(0).y = 1.f
-		// mesh.vertices(mw-1).y = 1.f
-		// mesh.vertices((mh*(mw-1))).y = 1.f
-		// mesh.vertices((mh*(mw))-1).y = 1.f
+		// mesh.vertices(0).y = 1.0f
+		// mesh.vertices(mw-1).y = 1.0f
+		// mesh.vertices((mh*(mw-1))).y = 1.0f
+		// mesh.vertices((mh*(mw))-1).y = 1.0f
 
 		for(j <- 0 until 5; i <- 0 until 5){
 			meshGrid(j)(i).recalculateNormals

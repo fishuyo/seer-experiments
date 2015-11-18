@@ -24,7 +24,7 @@ object Main extends App with GLAnimatable{
 
   var origin = new Model(Pose(), Vec3(.1f)).add(Sphere())
 
-  var cams = Primitive3D.cube(Pose(), Vec3(1.f))
+  var cams = Primitive3D.cube(Pose(), Vec3(1.0f))
   var cameras = ListBuffer[GLPrimitive]()
  	var cameraPoses = ListBuffer[Pose]()
 
@@ -34,11 +34,11 @@ object Main extends App with GLAnimatable{
   for( i<-(0 until 14)){
     vecMeshs(i) = new Mesh(false,(4+16),0,VertexAttribute.Position)
     vecVerts(i) = new Array[Float]((4+16)*(3))
-    vecRay(i) = Primitive3D.cylinder(Pose(),Vec3(.05,.05,5.f),1.f, 3.f)
+    vecRay(i) = Primitive3D.cylinder(Pose(),Vec3(.05,.05,5.0f),1.0f, 3.0f)
 
   }
 
-  var fov = 45.f
+  var fov = 45.0f
 
 	OwlParser("sphere/record.owl").foreach{
 		case p:Pose => 
@@ -47,7 +47,7 @@ object Main extends App with GLAnimatable{
 			val c = Primitive3D.cube(p, Vec3(.108f,.057f,.092f))
 			c.color = RGBA(1,1,1,1)
 			cameras += c
-			var uf = p.pos + p.uf()*3.f
+			var uf = p.pos + p.uf()*3.0f
 			var uu = p.pos + p.uu()
 			var ur = p.pos + p.ur()
 			vecVerts(i)(0) = p.pos.x
@@ -63,12 +63,12 @@ object Main extends App with GLAnimatable{
 			vecVerts(i)(10) = uu.y
 			vecVerts(i)(11) = uu.z
       vecRay(i).pose.set(p)
-      vecRay(i).pose.quat *= Quat().fromEuler(Vec3(0,180.f.toRadians,0))
+      vecRay(i).pose.quat *= Quat().fromEuler(Vec3(0,180.0f.toRadians,0))
 
-      var b1 = -(p.quat * Quat().fromEuler(Vec3(0,fov.toRadians,0))).toZ * 1.f
-      var b2 = -(p.quat * Quat().fromEuler(Vec3(fov.toRadians,0,0))).toZ * 1.f
-      var b3 = -(p.quat * Quat().fromEuler(Vec3(0,-fov.toRadians,0))).toZ * 1.f
-      var b4 = -(p.quat * Quat().fromEuler(Vec3(-fov.toRadians,0,0))).toZ * 1.f
+      var b1 = -(p.quat * Quat().fromEuler(Vec3(0,fov.toRadians,0))).toZ * 1.0f
+      var b2 = -(p.quat * Quat().fromEuler(Vec3(fov.toRadians,0,0))).toZ * 1.0f
+      var b3 = -(p.quat * Quat().fromEuler(Vec3(0,-fov.toRadians,0))).toZ * 1.0f
+      var b4 = -(p.quat * Quat().fromEuler(Vec3(-fov.toRadians,0,0))).toZ * 1.0f
       vecVerts(i)(12) = p.pos.x
       vecVerts(i)(13) = p.pos.y
       vecVerts(i)(14) = p.pos.z
@@ -154,9 +154,9 @@ object Main extends App with GLAnimatable{
 
 
     // for( i<-(0 until vecMeshs.length)){
-    //   if( i <= 4) Shader.setColor( Vec3(i/4.f,1.f,1.f), 1.f)
-    //   else if( i <= 9) Shader.setColor( Vec3(1.f,(i-4)/5.f,1.f), 1.f)
-    //   else Shader.setColor( Vec3(1.f,1.f,(i-8)/5.f), 1.f)
+    //   if( i <= 4) Shader.setColor( Vec3(i/4.0f,1.0f,1.0f), 1.0f)
+    //   else if( i <= 9) Shader.setColor( Vec3(1.0f,(i-4)/5.0f,1.0f), 1.0f)
+    //   else Shader.setColor( Vec3(1.0f,1.0f,(i-8)/5.0f), 1.0f)
     //   vecMeshs(i).render(Shader(), GL10.GL_LINES)
     // }
 

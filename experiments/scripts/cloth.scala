@@ -57,12 +57,12 @@ var modelGenerator = EisenScriptParser("""
 	var dirty = true;
 	var alpha = 0.2;
 	var beta = 0.8;
-	var t = 0.f
+	var t = 0.0f
 
 
 	val mesh = Plane.generateMesh(8,2,80,40)
 	mesh.primitive = Lines
-	val s = new SpringMesh(mesh,1.f)
+	val s = new SpringMesh(mesh,1.0f)
 
 	for(p <- s.particles.takeRight(80)){ 
 		s.pins += AbsoluteConstraint(p,p.position+Vec3(0,4,Random.float()*0.01f))
@@ -99,13 +99,13 @@ var modelGenerator = EisenScriptParser("""
 		if( Mouse.status() == "drag"){
 			vel = (Mouse.xy() - lpos)/dt
 			// println(vel)
-			// s.applyForce( Vec3(vel.x,vel.y,0)*10.f)
-			val r = Camera.ray(Mouse.x()*Window.width, (1.f-Mouse.y()) * Window.height)
+			// s.applyForce( Vec3(vel.x,vel.y,0)*10.0f)
+			val r = Camera.ray(Mouse.x()*Window.width, (1.0f-Mouse.y()) * Window.height)
 			s.particles.foreach( (p) => {
 				val t = r.intersectSphere(p.position, 0.25f)
 				if(t.isDefined){
 					// val p = r(t.get)
-					p.applyForce(Vec3(vel.x,vel.y,0)*150.f)
+					p.applyForce(Vec3(vel.x,vel.y,0)*150.0f)
 					cursor.pose.pos.set(r(t.get))
 				}
 			})
@@ -128,8 +128,8 @@ var modelGenerator = EisenScriptParser("""
 	Trackpad.connect
 	Trackpad.bind( (i,f)=>{
 		i match{
-			// case 1 => s.applyForce( Vec3(f(0)-.5f,f(1)-.5f,0)*10.f)
-			case 4 => Gravity.set(Vec3(f(0)-.5f,f(1)-.5f,0)*10.f)
+			// case 1 => s.applyForce( Vec3(f(0)-.5f,f(1)-.5f,0)*10.0f)
+			case 4 => Gravity.set(Vec3(f(0)-.5f,f(1)-.5f,0)*10.0f)
 			case 3 => roty += f(3); modelGenerator.set("roty",roty); dirty = true
 								rotz += f(2); modelGenerator.set("rotz",rotz); dirty = true
 

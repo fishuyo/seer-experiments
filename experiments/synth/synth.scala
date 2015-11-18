@@ -19,16 +19,16 @@ object Main extends App with Animatable {
   Scene.push(this)
 
   var sines = ListBuffer[Osc]()
-  for( i<-(0 until 10)) sines += new Sine(0.f)
+  for( i<-(0 until 10)) sines += new Sine(0.0f)
   sines.foreach( s => Audio.push( s ))
 
   var display = Array(new AudioDisplay(512), new AudioDisplay(512))
   display(0).pose.pos.set(-1,0,0)
 
-  var osc = new Tri(41.f)
-  var lfo = new Saw(1.f)
+  var osc = new Tri(41.0f)
+  var lfo = new Saw(1.0f)
 
-  Audio.push( (lfo + osc.f ) -> osc  ) //* ((1.f-lfo)*.5f) )
+  Audio.push( (lfo + osc.f ) -> osc  ) //* ((1.0f-lfo)*.5f) )
 
   val live = new Ruby("synth.rb")
 

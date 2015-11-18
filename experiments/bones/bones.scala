@@ -36,7 +36,7 @@
 //   var sines = new Array[Gen](34)
 //   for( i <- (0 until 34)){
 // 		bones(i) = GLPrimitive.cube(Pose(), Vec3(.01f))
-// 		sines(i) = new Sine(80.f,0.f)
+// 		sines(i) = new Sine(80.0f,0.0f)
 // 	}
 //   bones.foreach( Scene.push( _ ))
 //   sines.foreach( Audio.push( _ ))
@@ -48,14 +48,14 @@
 //   Scene.push( drone )
 
 //   val ground = ObjParser("src/main/scala/drone/ground.obj")
-//   ground.scale.set(100.f,1.f,100.f)
+//   ground.scale.set(100.0f,1.0f,100.0f)
 //   Scene.push(ground)
 //   // val ground2 = ObjParser("src/main/scala/drone/groundrough.obj")
-//   // ground2.p.pos.set(0.f,0.f,-200.f)
-//   // ground2.s.set(100.f,1.f,100.f)
+//   // ground2.p.pos.set(0.0f,0.0f,-200.0f)
+//   // ground2.s.set(100.0f,1.0f,100.0f)
 //   // Scene.push(ground2)
 //   // val ground3 = ObjParser("src/main/scala/drone/landscapealiendecimated.obj","triangles",false)
-//   // //ground.s.set(100.f,1.f,100.f)
+//   // //ground.s.set(100.0f,1.0f,100.0f)
 //   // Scene.push(ground3)
 
 
@@ -86,7 +86,7 @@
 // 		val x = Randf( drone.pose.pos.x -.25f, drone.pose.pos.x + .25f,true)
 // 		val z = Randf( drone.pose.pos.z -.25f, drone.pose.pos.z + .25f,true)
 // 		val vs = Randf(.05f,.2f)
-// 		val vt = RandVec3(Vec3(-.05f,0.f,-.05f),Vec3(.05f,0.f,.05f))
+// 		val vt = RandVec3(Vec3(-.05f,0.0f,-.05f),Vec3(.05f,0.0f,.05f))
 
 // 		val pc = ParticleCollector
 //     if( pc.collection.size < pc.maxParticles - pc.numParticles ){

@@ -10,8 +10,8 @@ SceneGraph.root.depth = false
 
 object Script extends SeerScript {
 
-  var t = 0.f
-  var boost = 0.f
+  var t = 0.0f
+  var boost = 0.0f
 
   override def draw(){
     FPS.print

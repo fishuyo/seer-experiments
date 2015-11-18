@@ -27,7 +27,7 @@ object TerrainTest extends SeerApp {
 	override def init(){
 		imp = BF.openImagePlus(path)
 
-		live = new SeerScriptLoader("scripts/test.scala")
+		live = ScriptManager.load("scripts/test.scala")
 	}
 
 }

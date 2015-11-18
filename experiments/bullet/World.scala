@@ -43,7 +43,7 @@ object World extends SeerApp {
 	val groundShape = new btBoxShape(new Vector3(5,0.5,5))
 
   var localInertia = new Vector3()
-	val rbInfo = new btRigidBody.btRigidBodyConstructionInfo(0.f, null, groundShape, localInertia);
+	val rbInfo = new btRigidBody.btRigidBodyConstructionInfo(0.0f, null, groundShape, localInertia);
   val body = new btRigidBody(rbInfo)
 
   var agents = ArrayBuffer[Agent]()
@@ -63,9 +63,9 @@ object World extends SeerApp {
 	  agents += agent
 	  agent.model = Sphere().translate(0,10,0)
 	  agent.model.material = Material.specular
-		val ballShape = new btSphereShape(1.f)
-	  ballShape.calculateLocalInertia(5.f,localInertia)
-		val rbInfo2 = new btRigidBody.btRigidBodyConstructionInfo(5.f, agent, ballShape, localInertia);
+		val ballShape = new btSphereShape(1.0f)
+	  ballShape.calculateLocalInertia(5.0f,localInertia)
+		val rbInfo2 = new btRigidBody.btRigidBodyConstructionInfo(5.0f, agent, ballShape, localInertia);
 	  val body2 = new btRigidBody(rbInfo2)
 	  dynamicsWorld.addRigidBody(body2)
   }
@@ -77,12 +77,12 @@ object World extends SeerApp {
 
   }
 
-  var t = 0.f
+  var t = 0.0f
   override def animate(dt:Float){
   	t += dt 
   	if( t > 0.5f){
   		spawn()
-  		t = 0.f
+  		t = 0.0f
   	}
 
   	dynamicsWorld.stepSimulation(dt)

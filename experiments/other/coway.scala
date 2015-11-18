@@ -29,10 +29,10 @@ object MyInput extends InputAdapter {
     // println( v )
     
     val r = Camera.getPickRay(screenX,screenY) //new Ray( o, v-o )
-    val xx = ((r.getEndPoint(1.f).x + 1.f) * Main.n/2).toInt  
-    val yy = ((r.getEndPoint(1.f).y + 1.f) * Main.n/2).toInt 
+    val xx = ((r.getEndPoint(1.0f).x + 1.0f) * Main.n/2).toInt  
+    val yy = ((r.getEndPoint(1.0f).y + 1.0f) * Main.n/2).toInt 
     println( xx + " " + yy )
-    if( xx >= 0 && xx <= Main.n-1 && yy >= 0 && yy <= Main.n-1 ) Main.field.set( xx,yy, 1.f )
+    if( xx >= 0 && xx <= Main.n-1 && yy >= 0 && yy <= Main.n-1 ) Main.field.set( xx,yy, 1.0f )
     true
   }
 
@@ -44,8 +44,8 @@ object MyInput extends InputAdapter {
     // val v = Camera.projectPoint( x, y )
     
     // val r = new Ray( o, v-o )
-    // val xx = ((r(200.f).x + 1.f) * Main.n/2).toInt  
-    // val yy = ((r(200.f).y + 1.f) * Main.n/2).toInt 
+    // val xx = ((r(200.0f).x + 1.0f) * Main.n/2).toInt  
+    // val yy = ((r(200.0f).y + 1.0f) * Main.n/2).toInt 
     // if( xx >= 0 && xx <= Main.n-1 && yy >= 0 && yy <= Main.n-1 ){
     //   var count = 0;
     //   for( j <- (-1 to 1); i <- (-1 to 1)){
@@ -84,10 +84,10 @@ object Main extends App {
   val n = 100;
   val field = new ConwayField(n,n)
 
-  //field.set( Array(1.0f, 0.f,0.f,0.f,0.f,1.f,0.f,0.f,0.f,0.f,1.f,0.f,0.f,0.f,0.f,1.f ));
-  //field.set( 2, 2, 1.f );
-  //field.set( 3, 2, 1.f );
-  //field.set( 4, 2, 1.f );
+  //field.set( Array(1.0f, 0.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,0.0f,1.0f ));
+  //field.set( 2, 2, 1.0f );
+  //field.set( 3, 2, 1.0f );
+  //field.set( 4, 2, 1.0f );
 
   Scene.push( field )
   Inputs.addProcessor(MyInput)
@@ -122,19 +122,19 @@ class ConwayField(w:Int,h:Int) extends Field2D(w,h) {
       //println( count );
       
       //was alive
-      if( this(x,y).r > 0.f ){
+      if( this(x,y).r > 0.0f ){
         count -= 1
-        if( count == 2 || count == 3) next.put(y*w+x,1.f)
+        if( count == 2 || count == 3) next.put(y*w+x,1.0f)
         else {
-        next.put(y*w+x,0.f)
+        next.put(y*w+x,0.0f)
         //println( x + " " + y + " dieing")
         }
-      }else if( this(x,y).r == 0.f) { //was dead
+      }else if( this(x,y).r == 0.0f) { //was dead
         if( count == 3 ){
-          next.put(y*w+x,1.f)
+          next.put(y*w+x,1.0f)
           //println( x + " " + y + " born")
         }
-        else next.put(y*w+x,0.f)
+        else next.put(y*w+x,0.0f)
       }
     }
 

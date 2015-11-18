@@ -30,7 +30,7 @@ object Script extends SeerScript {
 			t = new GdxTexture(p,true)
 			t.setFilter( GdxTexture.TextureFilter.Linear, GdxTexture.TextureFilter.Linear)
 			s.material.texture = Some(t)
-			s.material.textureMix=1.f
+			s.material.textureMix=1.0f
 		}
 		val v = Random.vec3() * (n-1)
 		val r = Random.float() * 20

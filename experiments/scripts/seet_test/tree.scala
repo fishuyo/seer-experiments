@@ -8,20 +8,20 @@ import io._
 
 object Script extends SeerScript {
 
-  var t = 0.f
-  var depth = 8.f
+  var t = 0.0f
+  var depth = 8.0f
   var x,y = 0.1f
 
   val osc = new Sine(440,1)
-  val lfo = new Saw(4.f,10)
-  val freq = lfo.map( _ * -1.f + depth*80.f)
+  val lfo = new Saw(4.0f,10)
+  val freq = lfo.map( _ * -1.0f + depth*80.0f)
 
   osc.f = freq
 
   override def draw(){
     Shader.alpha(0.1f)
     Shader.blend("oneMinusSrc")
-    Shader.lineWidth(1.f)
+    Shader.lineWidth(1.0f)
 
     Sphere().mesh.primitive = Lines
 
@@ -70,7 +70,7 @@ object Script extends SeerScript {
         lfo.a = y*100
       case 3 =>
         depth += touch.vel.y*0.1f
-        if(depth > 11.f) depth = 11.f
+        if(depth > 11.0f) depth = 11.0f
       case _ => ()  
     }
   })

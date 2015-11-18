@@ -29,9 +29,9 @@
 
 //   var wind=true
 //   var gusting=false
-//   var t = 0.f
-//   var duration = 0.f
-//   var mag = 0.f
+//   var t = 0.0f
+//   var duration = 0.0f
+//   var mag = 0.0f
 
 //   DesktopApp()  
 
@@ -59,7 +59,7 @@
 
 //     // if(wind){
 //     //   if(t > duration){
-//     //     t = 0.f
+//     //     t = 0.0f
 //     //     duration = Random.float(0.1f,0.8f)()
 
 //     //     if(Random.float() < 0.8f){
@@ -72,7 +72,7 @@
 //     //   }
 
 //     //   if(gusting){
-//     //     Main.blades.foreach( _.applyForce(Vec3(0.f,0.f,mag-Random.float()*.004f) ))  
+//     //     Main.blades.foreach( _.applyForce(Vec3(0.0f,0.0f,mag-Random.float()*.004f) ))  
 //     //   }
 //     // }
   
@@ -136,7 +136,7 @@
 //     //   sticks.foreach( (p) => {
 //     //     if( field != null ) p.applyForce( field(p.position) ) 
 //     //     p.applyGravity()
-//     //     p.applyDamping(20.f)
+//     //     p.applyDamping(20.0f)
 //     //     p.animate(.015f) 
 //     //   })
 
@@ -159,13 +159,13 @@
 //         vertices(12*v+1) = p.y
 //         vertices(12*v+2) = p.z
 //         vertices(12*v+3) = d.x+r()
-//         vertices(12*v+4) = 0.f
+//         vertices(12*v+4) = 0.0f
 //         vertices(12*v+5) = d.z+r()
 //         vertices(12*v+6) = q.x
 // 	      vertices(12*v+7) = q.y
 // 	      vertices(12*v+8) = q.z
 // 	      vertices(12*v+9) = d.x+r()
-// 	      vertices(12*v+10) = 0.f
+// 	      vertices(12*v+10) = 0.0f
 // 	      vertices(12*v+11) = d.z+r()
 //     	// } else off -= 1
 //     }

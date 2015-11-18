@@ -82,7 +82,7 @@ object Script extends SeerScript {
     if( Mouse.status() == "drag"){
       vel = (Mouse.xy() - lpos)/dt
       // println(vel)
-      // s.applyForce( Vec3(vel.x,vel.y,0)*10.f)
+      // s.applyForce( Vec3(vel.x,vel.y,0)*10.0f)
       val r = Camera.ray(Mouse.x()*Window.width, (1f-Mouse.y()) * Window.height)
       s.particles.foreach( (p) => {
         val t = r.intersectSphere(p.position, 0.25f)
@@ -102,8 +102,8 @@ object Script extends SeerScript {
   Trackpad.connect
   Trackpad.bind( touch =>{
     touch match{
-      // case 1 => s.applyForce( Vec3(f(0)-.5f,f(1)-.5f,0)*10.f)
-      //case 3 => Gravity.set(Vec3(f(0)-.5f,f(1)-.5f,0)*10.f)
+      // case 1 => s.applyForce( Vec3(f(0)-.5f,f(1)-.5f,0)*10.0f)
+      //case 3 => Gravity.set(Vec3(f(0)-.5f,f(1)-.5f,0)*10.0f)
       case _ => ()
     }
   })

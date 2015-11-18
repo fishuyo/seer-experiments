@@ -46,19 +46,19 @@ class LiveField(ww:Int,hh:Int) extends Field2D(ww,hh) {
       //println( count );
       
       //was alive
-      if( this(x,y).r > 0.f ){
+      if( this(x,y).r > 0.0f ){
         count -= 1
-        if( count == 2 || count == 3) next.set(x,y,1.f)
+        if( count == 2 || count == 3) next.set(x,y,1.0f)
         else {
-        next.set(x,y,0.f)
+        next.set(x,y,0.0f)
         //println( x + " " + y + " dieing")
         }
-      }else if( this(x,y).r == 0.f) { //was dead
+      }else if( this(x,y).r == 0.0f) { //was dead
         if( count == 3 ){
-          next.set(x,y,1.f)
+          next.set(x,y,1.0f)
           //println( x + " " + y + " born")
         }
-        else next.set(x,y,0.f)
+        else next.set(x,y,0.0f)
       }
     }
 
