@@ -11,7 +11,8 @@ object Loader extends SeerApp {
 
   // val live = ScriptLoader("scripts/test.scala")
   // val live = ScriptLoader("scripts/liquidSkel.scala")
-  val live = ScriptLoader("scripts/openni.scala")
+  // val live = ScriptLoader("scripts/openni.scala")
+  val live = ScriptManager.load("scripts/poemWorld.scala")
   // val live = ScriptLoader("scripts/tree.scala")
 
   override def draw(){}

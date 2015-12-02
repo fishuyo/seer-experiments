@@ -11,7 +11,7 @@ object ExperimentsBuild extends Build {
 
   lazy val experiments = project.in(file("experiments")).
     settings(app: _*).
-    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_openni, seer_opencv, tree)
+    dependsOn(seer_gdx_desktop_app, seer_osx_multitouch, seer_script, seer_openni, seer_opencv)
 
   lazy val fieldViewer = project.in(file("experiments/fieldViewer")).settings(app: _*).
     dependsOn(seer_gdx_desktop_app)

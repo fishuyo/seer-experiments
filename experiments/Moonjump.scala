@@ -50,7 +50,7 @@ import collection.mutable.ArrayBuffer
 
 object Moonjump extends SeerApp {
 
-	val live = ScriptLoader("scripts/moonjump.scala")
+	val live = ScriptManager.load("scripts/moonjump.scala")
 
 	// val players = ArrayBuffer[Player]()
 	// val moons = ArrayBuffer[Moon]()

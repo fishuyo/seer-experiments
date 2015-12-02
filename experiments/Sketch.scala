@@ -11,7 +11,7 @@ import dynamic._
   * 
   */
 object Sketch extends SeerApp {
-  val live = ScriptManager.load("scripts/sketch.scala")
+  val live = ScriptManager.load("sketch")
 
   override def draw(){}
   override def animate(dt:Float){}
